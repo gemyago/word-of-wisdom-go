@@ -1,0 +1,14 @@
+ARG BASE_BUILD_IMAGE=golang:1.23.1-bullseye
+FROM ${BASE_BUILD_IMAGE}
+
+WORKDIR /go/src/service/
+
+RUN apk update && apk add make
+
+RUN mkdir -p /go/src/service/
+COPY go.mod go.sum Makefile /go/src/service/
+COPY pkg/tools /go/src/service/pkg/tools
+RUN go mod download
+
+COPY ./ /go/src/service/
+RUN make bin

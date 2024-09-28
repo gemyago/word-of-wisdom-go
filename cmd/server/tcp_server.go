@@ -67,8 +67,8 @@ func runTCPServer(params runTCPServerParams) error {
 
 func newTCPServerCmd(container *dig.Container) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "tcp-server",
-		Short: "Command to start tcp server",
+		Use:   "tcp",
+		Short: "Start tcp server",
 	}
 	noop := false
 	cmd.Flags().BoolVar(

@@ -1,8 +1,27 @@
 # word-of-wisdom-go
 
+## Running Locally Via Docker
+
+It is assumed that GNU make and docker are available
+
+```sh
+# Build local images
+make docker-images
+
+# Start tcp server
+docker run -p 44221:44221 --rm -it localhost:6000/word-of-wisdom-server:latest server tcp
+
+# Run client
+docker run --net=host --rm -it localhost:6000/word-of-wisdom-client:latest client get-wow
+```
+
+Both client & server support additional flags, run with -h to see the details.
+
 ## TODOs
 
 * Timeouts
+  * Client - connect timeout
+  * Server - session timeout
 * Better justification of the hashing algo
 * Command token to constants
 * Increase complexity based on request rate
@@ -39,7 +58,7 @@ Nice to have, but out of scope:
 ### High level design of the system is outlined below
 <img src="./doc/wow-high-level.svg">
 
-Each time the client will be requesting a next WoW, the server will generate the challenge, send it back to the client. Once response is received - the server will verify the challenge and in case of success - return a valid WoW.
+Each time the client will be requesting a next WoW, the server may generate the challenge, send it back to the client. Once the response is received - the server will verify the challenge and in case of success - return a valid WoW.
 
 Every new request will be recorded by request rate monitor (using client IP address). The challenge generator will use the request rate monitoring data to define a complexity for the challenge to solve. The complexity will increase exponentially.
 
@@ -49,16 +68,28 @@ We want to be nice to our clients, so good actors will not be required solving c
 
 The algorithm should allow varying complexity and should be friendly to end users (e.g should be possible to run on a end user hardware that can be weak). It should also be relatively cheap to verify server side.
 
-The hash based (Hashcash) SHA-256 algorithm is a good candidate for this. The complexity of solving the challenge will be controlled by varying leading zeros in the hash output. The number of leading zeros will be varying and will increase based on the request rate of the target IP address.
+The hash based (Hashcash) SHA-256 algorithm is a good candidate for this. The complexity of solving the challenge will be controlled by varying leading zeros in the hash output. The number of leading zeros will be varying and will increase based on the request rate of the target IP address and will also depend on overall server load.
 
 ## Project structure
 
-* [cmd/server](./cmd/server) is a main entrypoint to start API server. Dependencies wire-up is happening here.
-* [pkg/api/tcp](./pkg/api/tcp) - includes components required to process raw TCP requests
-* `pkg/app` - is assumed to include application layer code (e.g business logic). 
-* `pkg/services` - lower level components are supposed to be here (e.g database access layer e.t.c).
+### Packages overview:
+* [cmd/server](./cmd/server) Server cli
+* [cmd/client](./cmd/client) Client cli
+* [pkg/api/tcp](./pkg/api/tcp) - TCP server and protocol processing
+* [pkg/app](./pkg/app) - Application business logic related components
+* [pkg/services](./pkg/services) - Lower level services and other supporting components
 
-## Project Setup
+### Modules used
+
+* [dig](github.com/uber-go/dig) - DI toolkit
+* [cobra](github.com/spf13/cobra) - CLI interactions
+* [viper](github.com/spf13/viper) - Configuration management
+* [testify](github.com/stretchr/testify) - Assertion toolkit
+* [mockery](github.com/vektra/mockery) - Mocks generator
+* [golangci-lint](https://golangci-lint.run/) - Linter
+* slog for logging
+
+## Dev env setup
 
 Please have the following tools installed: 
 * [direnv](https://github.com/direnv/direnv) 
@@ -85,21 +116,22 @@ make test
 Run specific tests:
 ```bash
 # Run once
-go test -v ./service/pkg/api/http/v1controllers/ --run TestHealthCheckController
+go test -v ./pkg/app/challenges/ --run TestChallenges
 
 # Run same test multiple times
-# This is useful for tests that are flaky
-go test -v -count=5 ./service/pkg/api/http/v1controllers/ --run TestHealthCheckController
+# This is useful to catch flaky tests
+go test -v -count=5 ./pkg/app/challenges/ --run TestChallenges
 
 # Run and watch
-gow test -v ./service/pkg/api/http/v1controllers/ --run TestHealthCheckController
+gow test -v ./pkg/app/challenges/ --run TestChallenges
 ```
 ### Run local server:
 
 ```bash
-# Regular mode
-go run ./cmd/service/
+# Start TCP server
+# use gow to run it in watch mode
+go run ./cmd/server/ tcp
 
-# Watch mode (double ^C to stop)
-gow run ./cmd/service/
+# Run client
+go run ./cmd/client/ get-wow
 ```

@@ -21,10 +21,10 @@ tools:
 	go install github.com/mitranim/gow@latest
 	go install github.com/vektra/mockery/v2@latest
 
-dist/bin: 
+bin:
 	go build \
 		-tags=release \
-		-o dist/bin/ ./cmd/...;
+		-o bin/ ./cmd/...;
 
 go_path=$(shell go env GOPATH)
 go-test-coverage=$(go_path)/bin/go-test-coverage
@@ -40,3 +40,7 @@ test: $(go-test-coverage) $(cover_profile)
 	go tool cover -html=$(cover_profile) -o $(cover_html)
 	@echo "Test coverage report: $(shell realpath $(cover_html))"
 	$(go-test-coverage) --badge-file-name $(cover_dir)/coverage.svg --config .testcoverage.yaml --profile $(cover_profile)
+
+.PHONY: docker-images
+docker-images:
+	make -C docker clean-images .local-client-image .local-server-image

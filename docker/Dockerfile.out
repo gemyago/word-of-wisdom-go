@@ -1,0 +1,8 @@
+ARG BUILD_IMAGE=localhost:6000/word-of-wisdom-build:latest
+ARG RUNTIME_IMAGE=alpine:3.20.3
+FROM ${BUILD_IMAGE} AS build
+
+FROM ${RUNTIME_IMAGE}
+ARG TARGET=server
+ENV TARGET=${TARGET}
+COPY --from=build /go/src/service/bin/${TARGET} /usr/local/bin
