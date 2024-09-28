@@ -1,0 +1,11 @@
+{
+  "defaultLogLevel": "INFO",
+  "tcpServer": {
+    "port": 44221
+  },
+  "monitoring": {
+    "windowDuration": "60s",
+    "maxUnverifiedClientRequests": 1,
+    "maxUnverifiedRequests": 600
+  }
+}
