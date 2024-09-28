@@ -21,6 +21,12 @@ func TestSession(t *testing.T) {
 			assert.Equal(t, wantLine, lo.Must(session.ReadLine()))
 			assert.NotEmpty(t, session.ClientID())
 		})
+		t.Run("should handle read errors", func(t *testing.T) {
+			var buffer bytes.Buffer
+			session := NewSession(faker.UUIDHyphenated(), &buffer)
+			_, err := session.ReadLine()
+			assert.Error(t, err)
+		})
 	})
 	t.Run("WriteLine", func(t *testing.T) {
 		t.Run("should write line to the stream", func(t *testing.T) {

@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math/rand/v2"
 	"testing"
@@ -12,6 +13,7 @@ import (
 
 	"github.com/go-faker/faker/v4"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestCommands(t *testing.T) {
@@ -25,6 +27,23 @@ func TestCommands(t *testing.T) {
 	}
 
 	t.Run("Handle", func(t *testing.T) {
+		t.Run("should fail if err getting command", func(t *testing.T) {
+			ctx := context.Background()
+			deps := makeMockDeps(t)
+			h := NewHandler(deps)
+
+			session := networking.NewMockSession()
+			wantErr := errors.New(faker.Sentence())
+
+			handleErr := make(chan error)
+			go func() {
+				handleErr <- h.Handle(ctx, session)
+			}()
+
+			session.MockSetNextError(wantErr)
+			session.MockSendLine(faker.Word())
+			assert.ErrorIs(t, <-handleErr, wantErr)
+		})
 		t.Run("should fail if unexpected command", func(t *testing.T) {
 			ctx := context.Background()
 			deps := makeMockDeps(t)
@@ -106,6 +125,110 @@ func TestCommands(t *testing.T) {
 
 			result = session.MockSendLineAndWaitResult("CHALLENGE_RESULT: " + wantSolution)
 			assert.Equal(t, "WOW: "+wantWow, result)
+			assert.NoError(t, <-handleErr)
+		})
+		t.Run("should fail if record request error", func(t *testing.T) {
+			ctx := context.Background()
+			deps := makeMockDeps(t)
+			h := NewHandler(deps)
+
+			session := networking.NewMockSession()
+
+			mockMonitor, _ := deps.RequestRateMonitor.(*challenges.MockRequestRateMonitor)
+			mockMonitor.EXPECT().RecordRequest(ctx, session.ClientID()).Return(
+				challenges.RecordRequestResult{}, errors.New(faker.Sentence()),
+			)
+
+			handleErr := make(chan error)
+			go func() {
+				handleErr <- h.Handle(ctx, session)
+			}()
+
+			result := session.MockSendLineAndWaitResult("GET_WOW")
+			assert.Equal(t, "ERR: INTERNAL_ERROR", result)
+			assert.NoError(t, <-handleErr)
+		})
+		t.Run("should handle get next wow query error", func(t *testing.T) {
+			ctx := context.Background()
+			deps := makeMockDeps(t)
+			h := NewHandler(deps)
+
+			session := networking.NewMockSession()
+
+			mockMonitor, _ := deps.RequestRateMonitor.(*challenges.MockRequestRateMonitor)
+			mockMonitor.EXPECT().RecordRequest(ctx, session.ClientID()).Return(
+				challenges.RecordRequestResult{}, nil,
+			)
+
+			mockQuery, _ := deps.Query.(*wow.MockQuery)
+			wantErr := errors.New(faker.Sentence())
+			mockQuery.EXPECT().GetNextWoW(ctx).Return("", wantErr)
+
+			handleErr := make(chan error)
+			go func() {
+				handleErr <- h.Handle(ctx, session)
+			}()
+
+			session.MockSendLine("GET_WOW")
+			assert.ErrorIs(t, <-handleErr, wantErr)
+		})
+		t.Run("should handle challenge generation errors", func(t *testing.T) {
+			ctx := context.Background()
+			deps := makeMockDeps(t)
+			h := NewHandler(deps)
+
+			session := networking.NewMockSession()
+
+			mockMonitor, _ := deps.RequestRateMonitor.(*challenges.MockRequestRateMonitor)
+			mockMonitor.EXPECT().RecordRequest(ctx, session.ClientID()).Return(
+				challenges.RecordRequestResult{ChallengeRequired: true}, nil,
+			)
+
+			wantErr := errors.New(faker.Sentence())
+			mockChallenges, _ := deps.Challenges.(*challenges.MockChallenges)
+			mockChallenges.EXPECT().GenerateNewChallenge(session.ClientID()).Return("", wantErr)
+
+			handleErr := make(chan error)
+			go func() {
+				handleErr <- h.Handle(ctx, session)
+			}()
+
+			session.MockSendLine("GET_WOW")
+			assert.ErrorIs(t, <-handleErr, wantErr)
+		})
+		t.Run("should handle challenge verification error", func(t *testing.T) {
+			ctx := context.Background()
+			deps := makeMockDeps(t)
+			h := NewHandler(deps)
+
+			session := networking.NewMockSession()
+
+			mockMonitor, _ := deps.RequestRateMonitor.(*challenges.MockRequestRateMonitor)
+			monitorResult := challenges.RecordRequestResult{
+				ChallengeRequired:   true,
+				ChallengeComplexity: 5 + rand.IntN(10),
+			}
+			mockMonitor.EXPECT().RecordRequest(ctx, session.ClientID()).Return(
+				monitorResult, nil,
+			)
+
+			mockChallenges, _ := deps.Challenges.(*challenges.MockChallenges)
+			mockChallenges.EXPECT().GenerateNewChallenge(session.ClientID()).Return(faker.Word(), nil)
+			mockChallenges.EXPECT().VerifySolution(
+				mock.Anything,
+				mock.Anything,
+				mock.Anything,
+			).Return(false)
+
+			handleErr := make(chan error)
+			go func() {
+				handleErr <- h.Handle(ctx, session)
+			}()
+
+			session.MockSendLineAndWaitResult("GET_WOW")
+
+			result := session.MockSendLineAndWaitResult("CHALLENGE_RESULT: " + faker.Word())
+			assert.Equal(t, "ERR: CHALLENGE_VERIFICATION_FAILED", result)
 			assert.NoError(t, <-handleErr)
 		})
 	})

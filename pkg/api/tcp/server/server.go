@@ -27,17 +27,19 @@ type ListenerDeps struct {
 }
 
 type Listener struct {
-	logger         *slog.Logger
-	listener       net.Listener
-	commandHandler commands.CommandHandler
-	port           int
+	logger          *slog.Logger
+	listener        net.Listener
+	commandHandler  commands.CommandHandler
+	port            int
+	listeningSignal chan struct{}
 }
 
 func NewListener(deps ListenerDeps) *Listener {
 	return &Listener{
-		port:           deps.Port,
-		commandHandler: deps.CommandHandler,
-		logger:         deps.RootLogger.WithGroup("tcp.server"),
+		port:            deps.Port,
+		commandHandler:  deps.CommandHandler,
+		logger:          deps.RootLogger.WithGroup("tcp.server"),
+		listeningSignal: make(chan struct{}),
 	}
 }
 
@@ -67,10 +69,10 @@ func (l *Listener) Start(ctx context.Context) error {
 	l.logger.InfoContext(ctx, "Starting tcp listener", slog.Int("port", l.port))
 	var err error
 	l.listener, err = net.Listen("tcp", fmt.Sprintf(":%d", l.port))
-
 	if err != nil {
 		return err
 	}
+	close(l.listeningSignal)
 
 	for {
 		c, acceptErr := l.listener.Accept()
@@ -90,8 +92,12 @@ func (l *Listener) Start(ctx context.Context) error {
 	}
 }
 
+func (l *Listener) WaitListening() {
+	<-l.listeningSignal
+}
+
 func (l *Listener) Close() error {
-	if l.listener != nil {
+	if l.listener == nil {
 		return nil
 	}
 	return l.listener.Close()

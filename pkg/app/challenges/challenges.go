@@ -77,7 +77,7 @@ func (c *challenges) generateRandomBytes(size int) ([]byte, error) {
 
 func (c *challenges) GenerateNewChallenge(clientID string) (string, error) {
 	nowBytes := big.NewInt(c.Now().UnixNano()).Bytes()
-	nonce, err := c.generateRandomBytes(10) // TODO: may need to make it smaller (or configurable)
+	nonce, err := c.generateRandomBytes(16) // TODO: may need to make it smaller (or configurable)
 	if err != nil {
 		return "", err
 	}

@@ -48,25 +48,25 @@ func (h *commandHandler) performChallengeVerification(
 	ctx context.Context,
 	con networking.Session,
 	monitoringResult challenges.RecordRequestResult,
-) error {
+) (bool, error) {
 	var challenge string
 	challenge, err := h.Challenges.GenerateNewChallenge(con.ClientID())
 	if err != nil {
-		return fmt.Errorf("failed to generate new challenge: %w", err)
+		return false, fmt.Errorf("failed to generate new challenge: %w", err)
 	}
 
 	h.trace(ctx, "Requiring to solve challenge", slog.Int("complexity", monitoringResult.ChallengeComplexity))
 	challengeData := fmt.Sprintf("CHALLENGE_REQUIRED: %s;%d", challenge, monitoringResult.ChallengeComplexity)
 	if err = con.WriteLine(challengeData); err != nil {
-		return err
+		return false, err
 	}
 	var cmd string
 	if cmd, err = con.ReadLine(); err != nil {
-		return err
+		return false, err
 	}
 	if strings.Index(cmd, "CHALLENGE_RESULT:") != 0 {
 		h.trace(ctx, "Got unexpected challenge result", slog.String("data", cmd))
-		return con.WriteLine("ERR: UNEXPECTED_CHALLENGE_RESULT")
+		return false, con.WriteLine("ERR: UNEXPECTED_CHALLENGE_RESULT")
 	}
 
 	if !h.Challenges.VerifySolution(
@@ -75,9 +75,9 @@ func (h *commandHandler) performChallengeVerification(
 		strings.Trim(cmd[len("CHALLENGE_RESULT:"):], " "),
 	) {
 		h.trace(ctx, "Challenge verification failed", slog.String("data", cmd))
-		return con.WriteLine("ERR: CHALLENGE_VERIFICATION_FAILED")
+		return false, con.WriteLine("ERR: CHALLENGE_VERIFICATION_FAILED")
 	}
-	return nil
+	return true, nil
 }
 
 func (h *commandHandler) Handle(ctx context.Context, con networking.Session) error {
@@ -108,8 +108,13 @@ func (h *commandHandler) Handle(ctx context.Context, con networking.Session) err
 	}
 
 	if monitoringResult.ChallengeRequired {
-		if err = h.performChallengeVerification(ctx, con, monitoringResult); err != nil {
+		var ok bool
+		ok, err = h.performChallengeVerification(ctx, con, monitoringResult)
+		if err != nil {
 			return err
+		}
+		if !ok {
+			return nil
 		}
 	}
 

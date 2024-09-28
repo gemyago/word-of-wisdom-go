@@ -38,7 +38,7 @@ func runTCPServer(params runTCPServerParams) error {
 			return
 		}
 
-		if err := params.Listener.Start(signalCtx); err != nil {
+		if err := params.Listener.Start(signalCtx); err != nil { // coverage-ignore // challenging to simulate
 			startupErrors <- err
 			return
 		}
@@ -46,13 +46,13 @@ func runTCPServer(params runTCPServerParams) error {
 
 	var startupErr error
 	select {
-	case startupErr = <-startupErrors:
+	case startupErr = <-startupErrors: // coverage-ignore // challenging to simulate
 		if startupErr != nil {
 			rootLogger.ErrorContext(rootCtx, "Server error", "err", startupErr)
 		} else {
 			rootLogger.InfoContext(rootCtx, "Server stopped")
 		}
-	case <-signalCtx.Done(): // coverage-ignore
+	case <-signalCtx.Done(): // coverage-ignore // challenging to simulate
 		rootLogger.InfoContext(rootCtx, "Trying to shut down gracefully")
 		ts := time.Now()
 		if err := params.Listener.Close(); err != nil {

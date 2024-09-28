@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"log/slog"
 	"os"
 	"word-of-wisdom-go/pkg/diag"
@@ -22,6 +23,7 @@ type runWOWCommandParams struct {
 
 	// Expected in a form host:port
 	serverAddress string
+	output        io.Writer
 }
 
 func runWOWCommand(ctx context.Context, params runWOWCommandParams) error {
@@ -41,8 +43,8 @@ func runWOWCommand(ctx context.Context, params runWOWCommandParams) error {
 	if err != nil {
 		return err
 	}
-	fmt.Fprintln(os.Stdout, "Your Word of Wisdom for today:")
-	fmt.Fprintln(os.Stdout, result)
+	fmt.Fprintln(params.output, "Your Word of Wisdom for today:")
+	fmt.Fprintln(params.output, result)
 	return nil
 }
 
@@ -63,11 +65,12 @@ func newClientCmd(container *dig.Container) *cobra.Command {
 	cmd.RunE = func(cmd *cobra.Command, _ []string) error {
 		ctx := cmd.Context()
 		return container.Invoke(func(params runWOWCommandParams) error {
+			params.serverAddress = serverAddress
+			params.output = os.Stdout
 			if noop {
 				params.RootLogger.InfoContext(ctx, "Establishing connection", slog.String("address", params.serverAddress))
 				return nil
 			}
-			params.serverAddress = serverAddress
 			return runWOWCommand(ctx, params)
 		})
 	}

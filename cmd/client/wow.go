@@ -38,6 +38,7 @@ func newWOWCommand(deps WOWCommandDeps) WOWCommand {
 	logger := deps.RootLogger.WithGroup("client")
 	return WOWCommandFunc(func(ctx context.Context, session networking.Session) (string, error) {
 		logger.DebugContext(ctx, "Sending GET_WOW request")
+
 		if err := session.WriteLine("GET_WOW"); err != nil {
 			return "", fmt.Errorf("failed to write to the server: %w", err)
 		}
@@ -51,7 +52,7 @@ func newWOWCommand(deps WOWCommandDeps) WOWCommand {
 
 		if strings.Index(line, "WOW:") == 0 {
 			logger.DebugContext(ctx, "Got WOW response. No challenge required")
-			return line, nil
+			return strings.Trim(line[4:], " "), nil
 		}
 
 		if strings.Index(line, "CHALLENGE_REQUIRED:") != 0 {
@@ -90,7 +91,7 @@ func newWOWCommand(deps WOWCommandDeps) WOWCommand {
 		logger.DebugContext(ctx, "Got response", slog.String("data", line))
 
 		if strings.Index(line, "WOW:") == 0 {
-			return line, nil
+			return strings.Trim(line[4:], " "), nil
 		}
 
 		return "", fmt.Errorf("got unexpected WOW response %s", line)

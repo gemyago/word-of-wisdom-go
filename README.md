@@ -26,6 +26,7 @@ Both client & server support additional flags, run with -h to see the details.
 * Command token to constants
 * Increase complexity based on request rate
 * Solve in parallel
+* Review all signal channels and use close where applicable
 
 ## Task Definition
 
