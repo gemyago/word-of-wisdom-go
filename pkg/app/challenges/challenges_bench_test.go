@@ -18,30 +18,30 @@ func BenchmarkChallengesSolveChallenge(b *testing.B) {
 		MaxSolveChallengeDuration: 2 * time.Minute,
 	})
 
-	clientID := faker.UUIDHyphenated()
-	challenge, err := challenges.GenerateNewChallenge(clientID)
-	require.NoError(b, err)
-
+	// We need predictable challenge to make test results stable
+	challenge := faker.UUIDHyphenated()
 	ctx := context.Background()
 
-	b.Run("complexity-1", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
-			_, err = challenges.SolveChallenge(ctx, 1, challenge)
-			require.NoError(b, err)
-		}
-	})
+	b.Run("SolveChallenge", func(b *testing.B) {
+		b.Run("complexity-1", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				_, err := challenges.SolveChallenge(ctx, 1, challenge)
+				require.NoError(b, err)
+			}
+		})
 
-	b.Run("complexity-2", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
-			_, err = challenges.SolveChallenge(ctx, 2, challenge)
-			require.NoError(b, err)
-		}
-	})
+		b.Run("complexity-2", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				_, err := challenges.SolveChallenge(ctx, 2, challenge)
+				require.NoError(b, err)
+			}
+		})
 
-	b.Run("complexity-3", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
-			_, err = challenges.SolveChallenge(ctx, 3, challenge)
-			require.NoError(b, err)
-		}
+		b.Run("complexity-3", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				_, err := challenges.SolveChallenge(ctx, 3, challenge)
+				require.NoError(b, err)
+			}
+		})
 	})
 }

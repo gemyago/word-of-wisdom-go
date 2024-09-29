@@ -20,11 +20,6 @@ docker run --net=host --rm -it localhost:6000/word-of-wisdom-client:latest clien
 
 Both client & server support additional flags, run with -h to see the details.
 
-## TODOs
-
-* Solve in parallel
-* Better justification of the hashing algo
-
 ## Task Definition
 
 Design and implement “Word of Wisdom” tcp server.

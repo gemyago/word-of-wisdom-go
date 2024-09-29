@@ -118,6 +118,16 @@ func (c *challenges) SolveChallenge(ctx context.Context, complexity int, challen
 		deadline = c.Deps.Now().Add(c.MaxSolveChallengeDuration)
 	}
 
+	/*
+		This can be parallelised however some research & benchmarking are required.
+		Straight forward approach was attempted that didn't prove to be more performant
+		than serial approach, roughly:
+		- Run GOMAXPROCS goroutines where running the hash computation below
+		- Separate goroutine is generating nonces and feeding them to the above
+			worker pool via channel
+		Benchmark has proven that at least up to complexity 3 the serial approach is
+		faster
+	*/
 	for {
 		nonceStr := strconv.Itoa(nonce)
 		copy(hashInput[challengePartEnd+1:], []byte(nonceStr))
