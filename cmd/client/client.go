@@ -18,7 +18,7 @@ type runWOWCommandParams struct {
 	RootLogger *slog.Logger
 
 	// client specific deps
-	sessionDialer
+	SessionDialer
 	WOWCommand
 
 	// Expected in a form host:port

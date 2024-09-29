@@ -9,7 +9,7 @@ import (
 	"go.uber.org/dig"
 )
 
-type sessionDialer interface {
+type SessionDialer interface {
 	// DialSession establishes new connection and returns session and close function
 	DialSession(network, address string) (networking.Session, func() error, error)
 }
@@ -20,7 +20,7 @@ func (f sessionDialerFunc) DialSession(network, address string) (networking.Sess
 	return f(network, address)
 }
 
-var _ sessionDialer = sessionDialerFunc(nil)
+var _ SessionDialer = sessionDialerFunc(nil)
 
 type SessionDialerDeps struct {
 	dig.In
@@ -29,7 +29,7 @@ type SessionDialerDeps struct {
 	IOTimeout time.Duration `name:"config.client.ioTimeout"`
 }
 
-func newSessionDialer(deps SessionDialerDeps) sessionDialer {
+func newSessionDialer(deps SessionDialerDeps) SessionDialer {
 	return sessionDialerFunc(func(network, address string) (networking.Session, func() error, error) {
 		conn, err := net.Dial(network, address)
 		if err != nil {

@@ -24,7 +24,7 @@ func TestClient(t *testing.T) {
 			params := runWOWCommandParams{
 				serverAddress: wantAddress,
 				RootLogger:    diag.RootTestLogger(),
-				sessionDialer: sessionDialerFunc(func(network, address string) (networking.Session, func() error, error) {
+				SessionDialer: sessionDialerFunc(func(network, address string) (networking.Session, func() error, error) {
 					assert.Equal(t, "tcp", network)
 					assert.Equal(t, wantAddress, address)
 					return mockSession, func() error { return nil }, nil
@@ -45,7 +45,7 @@ func TestClient(t *testing.T) {
 			params := runWOWCommandParams{
 				serverAddress: wantAddress,
 				RootLogger:    diag.RootTestLogger(),
-				sessionDialer: sessionDialerFunc(func(_, _ string) (networking.Session, func() error, error) {
+				SessionDialer: sessionDialerFunc(func(_, _ string) (networking.Session, func() error, error) {
 					return nil, nil, wantDialErr
 				}),
 			}
@@ -57,7 +57,7 @@ func TestClient(t *testing.T) {
 			params := runWOWCommandParams{
 				serverAddress: faker.Word(),
 				RootLogger:    diag.RootTestLogger(),
-				sessionDialer: sessionDialerFunc(func(_, _ string) (networking.Session, func() error, error) {
+				SessionDialer: sessionDialerFunc(func(_, _ string) (networking.Session, func() error, error) {
 					return networking.NewMockSession(), func() error { return nil }, nil
 				}),
 				WOWCommand: WOWCommandFunc(func(_ context.Context, _ networking.Session) (string, error) {
@@ -71,7 +71,7 @@ func TestClient(t *testing.T) {
 			params := runWOWCommandParams{
 				serverAddress: faker.Word(),
 				RootLogger:    diag.RootTestLogger(),
-				sessionDialer: sessionDialerFunc(func(_, _ string) (networking.Session, func() error, error) {
+				SessionDialer: sessionDialerFunc(func(_, _ string) (networking.Session, func() error, error) {
 					return networking.NewMockSession(), func() error { return errors.New(faker.Sentence()) }, nil
 				}),
 				WOWCommand: WOWCommandFunc(func(_ context.Context, _ networking.Session) (string, error) {
