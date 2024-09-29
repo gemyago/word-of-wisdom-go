@@ -57,5 +57,8 @@ func Provide(container *dig.Container, cfg *viper.Viper) error {
 		provideConfigValue(cfg, "monitoring.windowDuration").asDuration(),
 		provideConfigValue(cfg, "monitoring.maxUnverifiedClientRequests").asInt64(),
 		provideConfigValue(cfg, "monitoring.maxUnverifiedRequests").asInt64(),
+
+		// challenges config
+		provideConfigValue(cfg, "challenges.maxSolveChallengeDuration").asDuration(),
 	)
 }

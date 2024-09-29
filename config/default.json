@@ -12,5 +12,8 @@
     "windowDuration": "60s",
     "maxUnverifiedClientRequests": 1,
     "maxUnverifiedRequests": 600
+  },
+  "challenges": {
+    "maxSolveChallengeDuration": "2m"
   }
 }

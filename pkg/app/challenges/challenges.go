@@ -7,6 +7,7 @@ import (
 	"errors"
 	"math/big"
 	"strconv"
+	"time"
 	"word-of-wisdom-go/pkg/services"
 
 	"go.uber.org/dig"
@@ -54,6 +55,9 @@ type Challenges interface {
 
 type Deps struct {
 	dig.In `ignore-unexported:"true"`
+
+	// config
+	MaxSolveChallengeDuration time.Duration `name:"config.challenges.maxSolveChallengeDuration"`
 
 	// services
 	services.TimeProvider
@@ -109,8 +113,10 @@ func (c *challenges) SolveChallenge(ctx context.Context, complexity int, challen
 	hashInput[challengePartEnd] = ':'
 	nonce := 0
 
-	// TODO: If no deadline, set default deadline (configurable)
 	deadline, hasDeadline := ctx.Deadline()
+	if !hasDeadline {
+		deadline = c.Deps.Now().Add(c.MaxSolveChallengeDuration)
+	}
 
 	for {
 		nonceStr := strconv.Itoa(nonce)
@@ -121,8 +127,7 @@ func (c *challenges) SolveChallenge(ctx context.Context, complexity int, challen
 			return nonceStr, nil
 		}
 
-		// TODO: Make sure to set the deadline on caller
-		if hasDeadline && c.Deps.Now().UnixNano() >= deadline.UnixNano() {
+		if c.Deps.Now().UnixNano() >= deadline.UnixNano() {
 			break
 		}
 
