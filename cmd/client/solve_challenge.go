@@ -9,6 +9,7 @@ import (
 	"time"
 	"word-of-wisdom-go/pkg/app/challenges"
 
+	"github.com/samber/lo"
 	"github.com/spf13/cobra"
 	"go.uber.org/dig"
 )
@@ -60,14 +61,16 @@ func newSolveChallengeCmd(container *dig.Container) *cobra.Command {
 	}
 	challenge := "any text can be here"
 	complexity := 1
+	silent := false
 	cmd.Flags().StringVar(&challenge, "challenge", challenge, "Challenge to solve")
 	cmd.Flags().IntVarP(&complexity, "complexity", "c", complexity, "Complexity of the solution (e.g leading hash zeros)")
+	cmd.Flags().BoolVar(&silent, "silent", silent, "Do not produce any output. Just solve")
 	cmd.RunE = func(cmd *cobra.Command, _ []string) error {
 		ctx := cmd.Context()
 		return container.Invoke(func(params runSolveChallengeCommandParams) error {
 			params.challengeToSolve = challenge
 			params.complexity = complexity
-			params.output = os.Stdout
+			params.output = lo.If(silent, io.Discard).Else(os.Stdout)
 			return runSolveChallengeCommand(ctx, params)
 		})
 	}
