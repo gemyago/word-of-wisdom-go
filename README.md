@@ -123,6 +123,12 @@ go test -v -count=5 ./pkg/app/challenges/ --run TestChallenges
 # Run and watch
 gow test -v ./pkg/app/challenges/ --run TestChallenges
 ```
+
+Run benchmarks:
+```bash
+go test -v ./pkg/app/challenges/ --run BenchmarkChallengesSolveChallenge -bench=.
+```
+
 ### Run local server:
 
 ```bash
