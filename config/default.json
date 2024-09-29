@@ -1,7 +1,11 @@
 {
   "defaultLogLevel": "INFO",
   "tcpServer": {
-    "port": 44221
+    "port": 44221,
+    "maxSessionDuration": "10s"
+  },
+  "client": {
+    "ioTimeout": "2s"
   },
   "monitoring": {
     "windowDuration": "60s",

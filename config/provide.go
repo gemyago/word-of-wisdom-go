@@ -47,6 +47,10 @@ func Provide(container *dig.Container, cfg *viper.Viper) error {
 	return di.ProvideAll(container,
 		// tcp server config
 		provideConfigValue(cfg, "tcpServer.port").asInt(),
+		provideConfigValue(cfg, "tcpServer.maxSessionDuration").asDuration(),
+
+		// client config
+		provideConfigValue(cfg, "client.ioTimeout").asDuration(),
 
 		// monitoring config
 		provideConfigValue(cfg, "monitoring.windowDuration").asDuration(),

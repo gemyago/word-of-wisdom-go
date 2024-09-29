@@ -75,7 +75,7 @@ func newRootCmd(container *dig.Container) *cobra.Command {
 				challenges.NewChallenges,
 
 				// client deps
-				di.ProvideValue(SessionDialer(SessionDialerFunc(dialSession))),
+				newSessionDialer,
 				newWOWCommand,
 			),
 

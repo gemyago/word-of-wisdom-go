@@ -6,9 +6,12 @@ import (
 	"fmt"
 	"log/slog"
 	"net"
+	"runtime/debug"
 	"strings"
+	"time"
 	"word-of-wisdom-go/pkg/api/tcp/commands"
 	"word-of-wisdom-go/pkg/diag"
+	"word-of-wisdom-go/pkg/services"
 	"word-of-wisdom-go/pkg/services/networking"
 
 	"go.uber.org/dig"
@@ -20,26 +23,34 @@ type ListenerDeps struct {
 	RootLogger *slog.Logger
 
 	// config
-	Port int `name:"config.tcpServer.port"`
+	Port               int           `name:"config.tcpServer.port"`
+	MaxSessionDuration time.Duration `name:"config.tcpServer.maxSessionDuration"`
 
 	// components
 	commands.CommandHandler
+
+	// services
+	services.UUIDGenerator
 }
 
 type Listener struct {
-	logger          *slog.Logger
-	listener        net.Listener
-	commandHandler  commands.CommandHandler
-	port            int
-	listeningSignal chan struct{}
+	logger             *slog.Logger
+	listener           net.Listener
+	commandHandler     commands.CommandHandler
+	port               int
+	maxSessionDuration time.Duration
+	listeningSignal    chan struct{}
+	uuidGenerator      services.UUIDGenerator
 }
 
 func NewListener(deps ListenerDeps) *Listener {
 	return &Listener{
-		port:            deps.Port,
-		commandHandler:  deps.CommandHandler,
-		logger:          deps.RootLogger.WithGroup("tcp.server"),
-		listeningSignal: make(chan struct{}),
+		port:               deps.Port,
+		maxSessionDuration: deps.MaxSessionDuration,
+		commandHandler:     deps.CommandHandler,
+		logger:             deps.RootLogger.WithGroup("tcp.server"),
+		listeningSignal:    make(chan struct{}),
+		uuidGenerator:      deps.UUIDGenerator,
 	}
 }
 
@@ -52,7 +63,35 @@ func extractHost(addr string) string {
 }
 
 func (l *Listener) processAcceptedConnection(ctx context.Context, c net.Conn) {
+	// This can be transformed into a middleware like approach
+	connectionCtx := diag.SetLogAttributesToContext(
+		ctx, diag.LogAttributes{CorrelationID: slog.StringValue(l.uuidGenerator())},
+	)
+	defer func() {
+		if rvr := recover(); rvr != nil {
+			l.logger.ErrorContext(
+				connectionCtx,
+				"Unhandled panic",
+				slog.Any("panic", rvr),
+				slog.String("stack", string(debug.Stack())),
+			)
+			c.Close()
+		}
+	}()
+	deadline := time.Now().Add(l.maxSessionDuration)
+	connectionCtx, cancel := context.WithDeadline(connectionCtx, deadline)
+	defer cancel()
+
 	remoteAddr := c.RemoteAddr().String()
+	if err := c.SetDeadline(deadline); err != nil {
+		l.logger.ErrorContext(ctx,
+			"Failed to set connection deadline",
+			diag.ErrAttr(err),
+			slog.String("remoteAddr", remoteAddr),
+		)
+		return
+	}
+
 	l.logger.InfoContext(ctx, "Connection accepted", slog.String("remoteAddr", remoteAddr))
 	defer c.Close()
 	session := networking.NewSession(extractHost(remoteAddr), c)
@@ -85,10 +124,9 @@ func (l *Listener) Start(ctx context.Context) error {
 			// TODO: Not sure if it worth shutting down the server. Logging for now
 			// Ideally we add a health check that will prove that the server is alive
 			l.logger.ErrorContext(ctx, "failed to accept connection", diag.ErrAttr(acceptErr))
+		} else {
+			go l.processAcceptedConnection(ctx, c)
 		}
-
-		// TODO: Some sort of middleware to inject correlationId
-		go l.processAcceptedConnection(ctx, c)
 	}
 }
 
