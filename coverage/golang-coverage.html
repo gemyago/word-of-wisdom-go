@@ -1106,22 +1106,22 @@ import (
 
 const zeroByte = 48
 
-func computeHash(input []byte) []byte <span class="cov8" title="244">{
+func computeHash(input []byte) []byte <span class="cov9" title="5379081">{
         hash := sha256.New()
         hash.Write(input)
         return hash.Sum(nil)
 }</span>
 
-func countLeadingZeros(hash []byte) int <span class="cov8" title="363">{
+func countLeadingZeros(hash []byte) int <span class="cov9" title="5379204">{
         count := 0
-        for _, char := range hash </span><span class="cov10" title="772">{
-                if char == zeroByte </span><span class="cov9" title="409">{
+        for _, char := range hash </span><span class="cov10" title="5401245">{
+                if char == zeroByte </span><span class="cov6" title="22041">{
                         count++
-                }</span> else<span class="cov8" title="363"> {
+                }</span> else<span class="cov9" title="5379204"> {
                         break</span>
                 }
         }
-        <span class="cov8" title="363">return count</span>
+        <span class="cov9" title="5379204">return count</span>
 }
 
 type Challenges interface {
@@ -1184,7 +1184,7 @@ func (c *challenges) VerifySolution(
         complexity int,
         challenge string,
         solution string,
-) bool <span class="cov2" title="3">{
+) bool <span class="cov1" title="3">{
         hashInputBytes := make([]byte, len(challenge)+len(solution)+1)
         copy(hashInputBytes, []byte(challenge))
         hashInputBytes[len(challenge)] = ':'
@@ -1194,7 +1194,7 @@ func (c *challenges) VerifySolution(
         return leadingZerosNum &gt;= complexity
 }</span>
 
-func (c *challenges) SolveChallenge(ctx context.Context, complexity int, challenge string) (string, error) <span class="cov2" title="3">{
+func (c *challenges) SolveChallenge(ctx context.Context, complexity int, challenge string) (string, error) <span class="cov1" title="3">{
         challengePartEnd := len(challenge)
         hashInput := make([]byte, challengePartEnd+20) // we reserve 20 bytes for solution which should be enough
         copy(hashInput, []byte(challenge))
@@ -1204,7 +1204,7 @@ func (c *challenges) SolveChallenge(ctx context.Context, complexity int, challen
         // TODO: If no deadline, set default deadline (configurable)
         deadline, hasDeadline := ctx.Deadline()
 
-        for </span><span class="cov8" title="360">{
+        for </span><span class="cov9" title="5379201">{
                 nonceStr := strconv.Itoa(nonce)
                 copy(hashInput[challengePartEnd+1:], []byte(nonceStr))
                 hash := c.computeHashFn(hashInput[:challengePartEnd+1+len(nonceStr)])
@@ -1214,20 +1214,20 @@ func (c *challenges) SolveChallenge(ctx context.Context, complexity int, challen
                 }</span>
 
                 // TODO: Make sure to set the deadline on caller
-                <span class="cov8" title="358">if hasDeadline &amp;&amp; c.Deps.Now().UnixNano() &gt;= deadline.UnixNano() </span><span class="cov1" title="1">{
+                <span class="cov9" title="5379199">if hasDeadline &amp;&amp; c.Deps.Now().UnixNano() &gt;= deadline.UnixNano() </span><span class="cov1" title="1">{
                         break</span>
                 }
 
-                <span class="cov8" title="357">nonce++</span>
+                <span class="cov9" title="5379198">nonce++</span>
         }
         <span class="cov1" title="1">return "", errors.New("failed to solve challenge: deadline reached")</span>
 }
 
-func NewChallenges(deps Deps) Challenges <span class="cov3" title="8">{
-        if deps.computeHashFn == nil </span><span class="cov2" title="4">{
+func NewChallenges(deps Deps) Challenges <span class="cov2" title="8">{
+        if deps.computeHashFn == nil </span><span class="cov1" title="4">{
                 deps.computeHashFn = computeHash
         }</span>
-        <span class="cov3" title="8">return &amp;challenges{
+        <span class="cov2" title="8">return &amp;challenges{
                 Deps: deps,
         }</span>
 }
@@ -1581,7 +1581,7 @@ type requestRateMonitor struct {
         windowStartedAt atomic.Int64
 }
 
-func (m *requestRateMonitor) RecordRequest(_ context.Context, clientID string) (RecordRequestResult, error) <span class="cov10" title="420">{
+func (m *requestRateMonitor) RecordRequest(_ context.Context, clientID string) (RecordRequestResult, error) <span class="cov10" title="432">{
         // We are not using the context yet, but in a real world system it may be required
         // since we will very likely store counters somewhere
 
@@ -1602,20 +1602,20 @@ func (m *requestRateMonitor) RecordRequest(_ context.Context, clientID string) (
                 }</span>
         }
 
-        <span class="cov10" title="420">currentClientCounter, _ := m.requestRateByClient.LoadOrStore(clientID, new(int64))
+        <span class="cov10" title="432">currentClientCounter, _ := m.requestRateByClient.LoadOrStore(clientID, new(int64))
         nextClientCounter := atomic.AddInt64(currentClientCounter.(*int64), 1)
         if nextClientCounter &gt; m.MaxUnverifiedClientRequests </span><span class="cov2" title="3">{
                 challengeRequired = true
                 complexityRequired = 1
         }</span>
 
-        <span class="cov10" title="420">nextGlobalCount := m.globalRequestsCount.Add(1)
+        <span class="cov10" title="432">nextGlobalCount := m.globalRequestsCount.Add(1)
         if !challengeRequired &amp;&amp; nextGlobalCount &gt; m.MaxUnverifiedRequests </span><span class="cov2" title="3">{
                 challengeRequired = true
                 complexityRequired = 1
         }</span>
 
-        <span class="cov10" title="420">return RecordRequestResult{
+        <span class="cov10" title="432">return RecordRequestResult{
                 ChallengeRequired:   challengeRequired,
                 ChallengeComplexity: complexityRequired,
         }, nil</span>
@@ -2378,7 +2378,7 @@ func (m *MockNow) Increment(duration time.Duration) <span class="cov1" title="2"
         m.value = m.value.Add(duration)
 }</span>
 
-func (m *MockNow) Now() time.Time <span class="cov10" title="524">{
+func (m *MockNow) Now() time.Time <span class="cov10" title="536">{
         return m.value
 }</span>
 
