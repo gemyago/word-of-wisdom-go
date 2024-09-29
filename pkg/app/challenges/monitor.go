@@ -76,6 +76,8 @@ func (m *requestRateMonitor) challengeCondition(nextClientCounter, nextGlobalCou
 		complexityRequired = lo.If(globalCapacityScale >= 2, 2).Else(1)
 	}
 
+	// TODO: We should probably always use global complexity if it's above the caller complexity
+
 	return RecordRequestResult{
 		ChallengeRequired:   challengeRequired,
 		ChallengeComplexity: complexityRequired,
