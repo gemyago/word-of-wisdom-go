@@ -1,13 +1,1 @@
-# This file is provided by @freshcutgg/ci-terraform-flow. Please avoid updating it manually.
-# Please follow steps below in order to install most recent version:
-# * npm i --save-dev @freshcutgg/ci-terraform-flow@latest
-# * npm exec update-ci-templates
-
-.buildx-builder
-.local-registry
-.local-image*
-.build-image*
-.deployed-image*
-.cloud-run-exports-image*
-tmp/
-.npmrc
+.local-*
