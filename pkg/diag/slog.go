@@ -49,7 +49,11 @@ func (h *diagLogHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
 }
 
 func (h *diagLogHandler) WithGroup(name string) slog.Handler {
-	return &diagLogHandler{target: h.target.WithGroup(name)}
+	// Using WithAttrs here since group will nest all the attributes
+	// inside of it (including correlationId), which makes it harder to
+	// filter logs by the correlationId.
+	// Consumers can use slog.Group if some attributes needs to be grouped
+	return h.WithAttrs([]slog.Attr{slog.String("group", name)})
 }
 
 var _ slog.Handler = &diagLogHandler{}
