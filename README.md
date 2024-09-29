@@ -139,3 +139,26 @@ go run ./cmd/server/ tcp
 # Run client
 go run ./cmd/client/ get-wow
 ```
+
+### Tips on testing
+
+To test challenge solution behavior and performance use `solve-challenge` command of the client:
+```sh
+go run ./cmd/client/ solve-challenge --challenge some-challenge-string -c 1
+```
+
+To test the TCP server directly use nc to send raw commands:
+```sh
+# Initiate nc client session
+nc -v localhost 44221
+```
+
+Testing flow:
+* Start the TCP server
+* Initiate nc client session
+* Type `GET_WOW`, should see `WOW: <phrase>` immediately if withing the global limit or per client limit.
+* Retry `GET_WOW`, should see `CHALLENGE_REQUIRED` with the challenge and the complexity.
+  * If responding with `CHALLENGE_RESULT: invalid-solution`, should see `ERR: CHALLENGE_VERIFICATION_FAILED`
+  * If responding with valid solution, should get the `WOW: <phrase>`
+  * Use `solve-challenge` command above to solve the challenge and use the solution
+  * Note: max session duration is 10s (see default.json). You may want to increase it for local testing purposes.
