@@ -45,11 +45,11 @@ func (h *diagLogHandler) Handle(ctx context.Context, rec slog.Record) error {
 }
 
 func (h *diagLogHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
-	return h.target.WithAttrs(attrs)
+	return &diagLogHandler{target: h.target.WithAttrs(attrs)}
 }
 
 func (h *diagLogHandler) WithGroup(name string) slog.Handler {
-	return h.target.WithGroup(name)
+	return &diagLogHandler{target: h.target.WithGroup(name)}
 }
 
 var _ slog.Handler = &diagLogHandler{}
