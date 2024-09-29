@@ -60,9 +60,8 @@ func TestRequestRateMonitor(t *testing.T) {
 	})
 
 	t.Run("RecordRequest", func(t *testing.T) {
-		t.Run("should allow unverified requests within a window", func(t *testing.T) {
+		t.Run("should accumulate metrics within the window", func(t *testing.T) {
 			deps := newMockDeps()
-			monitor := NewRequestRateMonitor(deps)
 			ctx := context.Background()
 
 			clients := []string{
@@ -71,18 +70,35 @@ func TestRequestRateMonitor(t *testing.T) {
 				faker.UUIDHyphenated(),
 			}
 
+			wantRes := RecordRequestResult{
+				ChallengeRequired:   true,
+				ChallengeComplexity: rand.IntN(100),
+			}
+			conditionCalls := make([][]int64, 0, len(clients)*int(deps.MaxUnverifiedClientRequests))
+			deps.challengeConditionFunc = func(nextClientCount, nextGlobalCount int64) RecordRequestResult {
+				conditionCalls = append(conditionCalls, []int64{nextClientCount, nextGlobalCount})
+				return wantRes
+			}
+
+			monitor := NewRequestRateMonitor(deps)
 			for _, clientID := range clients {
 				for range deps.MaxUnverifiedClientRequests {
 					res, err := monitor.RecordRequest(ctx, clientID)
 					require.NoError(t, err)
-					require.Equal(t, RecordRequestResult{}, res)
+					require.Equal(t, wantRes, res)
+				}
+			}
+			for i := range clients {
+				callIndexBase := int64(i) * deps.MaxUnverifiedClientRequests
+				for j := range deps.MaxUnverifiedClientRequests {
+					callIndex := int(callIndexBase + j)
+					call := conditionCalls[callIndex]
+					assert.Equal(t, []int64{j + 1, callIndexBase + j + 1}, call)
 				}
 			}
 		})
-
-		t.Run("should require client requests verification above threshold", func(t *testing.T) {
+		t.Run("should reset metrics after the window", func(t *testing.T) {
 			deps := newMockDeps()
-			monitor := NewRequestRateMonitor(deps)
 			ctx := context.Background()
 
 			clients := []string{
@@ -91,96 +107,42 @@ func TestRequestRateMonitor(t *testing.T) {
 				faker.UUIDHyphenated(),
 			}
 
-			for _, clientID := range clients {
-				for range deps.MaxUnverifiedClientRequests {
-					_, err := monitor.RecordRequest(ctx, clientID)
-					require.NoError(t, err)
-				}
-				res, err := monitor.RecordRequest(ctx, clientID)
-				require.NoError(t, err)
-				assert.Equal(t, RecordRequestResult{
-					ChallengeRequired:   true,
-					ChallengeComplexity: 1,
-				}, res)
+			wantRes := RecordRequestResult{
+				ChallengeRequired:   true,
+				ChallengeComplexity: rand.IntN(100),
 			}
-		})
+			conditionCalls := make([][]int64, 0, len(clients)*int(deps.MaxUnverifiedClientRequests))
+			deps.challengeConditionFunc = func(nextClientCount, nextGlobalCount int64) RecordRequestResult {
+				conditionCalls = append(conditionCalls, []int64{nextClientCount, nextGlobalCount})
+				return wantRes
+			}
 
-		t.Run("should reset per client metrics after window elapses", func(t *testing.T) {
-			deps := newMockDeps()
 			monitor := NewRequestRateMonitor(deps)
-			ctx := context.Background()
-
-			clients := []string{
-				faker.UUIDHyphenated(),
-				faker.UUIDHyphenated(),
-				faker.UUIDHyphenated(),
-			}
-
 			for _, clientID := range clients {
 				for range deps.MaxUnverifiedClientRequests {
-					_, err := monitor.RecordRequest(ctx, clientID)
+					res, err := monitor.RecordRequest(ctx, clientID)
 					require.NoError(t, err)
+					require.Equal(t, wantRes, res)
 				}
 			}
-
 			mockNow, _ := deps.TimeProvider.(*services.MockNow)
 			mockNow.Increment(deps.WindowDuration + 1*time.Millisecond)
 
+			conditionCalls = make([][]int64, 0, len(clients)*int(deps.MaxUnverifiedClientRequests))
 			for _, clientID := range clients {
-				res, err := monitor.RecordRequest(ctx, clientID)
-				require.NoError(t, err)
-				assert.Equal(t, RecordRequestResult{}, res)
+				for range deps.MaxUnverifiedClientRequests {
+					res, err := monitor.RecordRequest(ctx, clientID)
+					require.NoError(t, err)
+					require.Equal(t, wantRes, res)
+				}
 			}
-		})
-
-		t.Run("should require verification if global threshold reached", func(t *testing.T) {
-			deps := newMockDeps()
-			monitor := NewRequestRateMonitor(deps)
-			ctx := context.Background()
-
-			clients := []string{
-				faker.UUIDHyphenated(),
-				faker.UUIDHyphenated(),
-				faker.UUIDHyphenated(),
-			}
-
-			for range deps.MaxUnverifiedRequests {
-				_, err := monitor.RecordRequest(ctx, faker.UUIDHyphenated())
-				require.NoError(t, err)
-			}
-			for _, clientID := range clients {
-				res, err := monitor.RecordRequest(ctx, clientID)
-				require.NoError(t, err)
-				require.Equal(t, RecordRequestResult{
-					ChallengeRequired:   true,
-					ChallengeComplexity: 1,
-				}, res)
-			}
-		})
-
-		t.Run("should reset global verification metrics after window elapses", func(t *testing.T) {
-			deps := newMockDeps()
-			monitor := NewRequestRateMonitor(deps)
-			ctx := context.Background()
-
-			clients := []string{
-				faker.UUIDHyphenated(),
-				faker.UUIDHyphenated(),
-				faker.UUIDHyphenated(),
-			}
-
-			for range deps.MaxUnverifiedRequests {
-				_, err := monitor.RecordRequest(ctx, faker.UUIDHyphenated())
-				require.NoError(t, err)
-			}
-
-			mockNow, _ := deps.TimeProvider.(*services.MockNow)
-			mockNow.Increment(deps.WindowDuration + (1 * time.Millisecond))
-
-			for _, clientID := range clients {
-				res, err := monitor.RecordRequest(ctx, clientID)
-				require.NoError(t, err)
-				require.Equal(t, RecordRequestResult{}, res)
+			for i := range clients {
+				callIndexBase := int64(i) * deps.MaxUnverifiedClientRequests
+				for j := range deps.MaxUnverifiedClientRequests {
+					callIndex := int(callIndexBase + j)
+					call := conditionCalls[callIndex]
+					assert.Equal(t, []int64{j + 1, callIndexBase + j + 1}, call)
+				}
 			}
 		})
 	})
