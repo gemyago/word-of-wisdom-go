@@ -1,5 +1,8 @@
 # word-of-wisdom-go
 
+[![Test](https://github.com/gemyago/word-of-wisdom-go/actions/workflows/run-tests.yml/badge.svg)](https://github.com/gemyago/word-of-wisdom-go/actions/workflows/run-tests.yml)
+[![Coverage](https://raw.githubusercontent.com/gemyago/word-of-wisdom-go/test-artifacts/coverage/golang-coverage.svg)](https://htmlpreview.github.io/?https://raw.githubusercontent.com/gemyago/word-of-wisdom-go/test-artifacts/coverage/golang-coverage.html)
+
 ## Running Locally Via Docker
 
 It is assumed that GNU make and docker are available
@@ -56,7 +59,7 @@ Nice to have, but out of scope:
 - Monitoring mechanism to see if we are under attack (e.g DDOS started)
 - CI/CD, Deployment pipeline e.t.c
 
-### High level design of the system is outlined below
+### High level conceptual design of the system is outlined below
 <img src="./doc/wow-high-level.svg">
 
 Each time the client will be requesting a next WoW, the server may generate the challenge, send it back to the client. Once the response is received - the server will verify the challenge and in case of success - return a valid WoW.
