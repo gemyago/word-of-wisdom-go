@@ -23,6 +23,42 @@ func TestRequestRateMonitor(t *testing.T) {
 		}
 	}
 
+	t.Run("challengeCondition", func(t *testing.T) {
+		t.Run("should allow unverified requests within the limit", func(t *testing.T) {
+			deps := newMockDeps()
+			monitor, _ := NewRequestRateMonitor(deps).(*requestRateMonitor)
+			assert.Equal(
+				t,
+				RecordRequestResult{},
+				monitor.challengeCondition(deps.MaxUnverifiedClientRequests-1, deps.MaxUnverifiedRequests-1),
+			)
+		})
+		t.Run("should require client requests verification above threshold", func(t *testing.T) {
+			deps := newMockDeps()
+			monitor, _ := NewRequestRateMonitor(deps).(*requestRateMonitor)
+			assert.Equal(
+				t,
+				RecordRequestResult{
+					ChallengeRequired:   true,
+					ChallengeComplexity: 1,
+				},
+				monitor.challengeCondition(deps.MaxUnverifiedClientRequests+1, deps.MaxUnverifiedRequests-1),
+			)
+		})
+		t.Run("should require global requests verification above threshold", func(t *testing.T) {
+			deps := newMockDeps()
+			monitor, _ := NewRequestRateMonitor(deps).(*requestRateMonitor)
+			assert.Equal(
+				t,
+				RecordRequestResult{
+					ChallengeRequired:   true,
+					ChallengeComplexity: 1,
+				},
+				monitor.challengeCondition(deps.MaxUnverifiedClientRequests-1, deps.MaxUnverifiedRequests+1),
+			)
+		})
+	})
+
 	t.Run("RecordRequest", func(t *testing.T) {
 		t.Run("should allow unverified requests within a window", func(t *testing.T) {
 			deps := newMockDeps()
