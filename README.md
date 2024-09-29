@@ -22,14 +22,10 @@ Both client & server support additional flags, run with -h to see the details.
 
 ## TODOs
 
-* Timeouts
-  * Client - connect timeout
-  * Server - session timeout
-* Better justification of the hashing algo
-* Command token to constants
 * Increase complexity based on request rate
 * Solve in parallel
-* Review all signal channels and use close where applicable
+* Better justification of the hashing algo
+* Command token to constants
 
 ## Task Definition
 
