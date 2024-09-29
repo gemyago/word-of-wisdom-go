@@ -22,10 +22,8 @@ Both client & server support additional flags, run with -h to see the details.
 
 ## TODOs
 
-* Increase complexity based on request rate
 * Solve in parallel
 * Better justification of the hashing algo
-* Command token to constants
 
 ## Task Definition
 

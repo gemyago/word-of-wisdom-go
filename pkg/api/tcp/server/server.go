@@ -121,7 +121,7 @@ func (l *Listener) Start(ctx context.Context) error {
 				return nil
 			}
 
-			// TODO: Not sure if it worth shutting down the server. Logging for now
+			// Not sure if it worth shutting down the server. Logging for now
 			// Ideally we add a health check that will prove that the server is alive
 			l.logger.ErrorContext(ctx, "failed to accept connection", diag.ErrAttr(acceptErr))
 		} else {
