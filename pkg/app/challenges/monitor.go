@@ -7,6 +7,7 @@ import (
 	"time"
 	"word-of-wisdom-go/pkg/services"
 
+	"github.com/samber/lo"
 	"go.uber.org/dig"
 )
 
@@ -59,12 +60,20 @@ func (m *requestRateMonitor) challengeCondition(nextClientCounter, nextGlobalCou
 
 	if nextClientCounter > m.MaxUnverifiedClientRequests {
 		challengeRequired = true
-		complexityRequired = 1
+
+		// We just grow it linearly, at some point (somewhere after 5 or 6)
+		// it's just going to become unreasonably complex to proceed
+		complexityRequired = int(nextClientCounter / m.MaxUnverifiedClientRequests)
 	}
 
 	if !challengeRequired && nextGlobalCount > m.MaxUnverifiedRequests {
 		challengeRequired = true
-		complexityRequired = 1
+		globalCapacityScale := nextGlobalCount / m.MaxUnverifiedRequests
+
+		// If we're under pressure globally (current rate is 2x more than global threshold)
+		// then increase min complexity for all users
+		// 2 is reasonably complex, so good actors will not be impacted significantly
+		complexityRequired = lo.If(globalCapacityScale >= 2, 2).Else(1)
 	}
 
 	return RecordRequestResult{

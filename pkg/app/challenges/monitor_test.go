@@ -45,6 +45,19 @@ func TestRequestRateMonitor(t *testing.T) {
 				monitor.challengeCondition(deps.MaxUnverifiedClientRequests+1, deps.MaxUnverifiedRequests-1),
 			)
 		})
+		t.Run("should grow client request verification complexity linearly", func(t *testing.T) {
+			deps := newMockDeps()
+			monitor, _ := NewRequestRateMonitor(deps).(*requestRateMonitor)
+			wantComplexity := 1 + rand.IntN(10)
+			assert.Equal(
+				t,
+				RecordRequestResult{
+					ChallengeRequired:   true,
+					ChallengeComplexity: wantComplexity,
+				},
+				monitor.challengeCondition(int64(wantComplexity)*deps.MaxUnverifiedClientRequests+2, deps.MaxUnverifiedRequests-1),
+			)
+		})
 		t.Run("should require global requests verification above threshold", func(t *testing.T) {
 			deps := newMockDeps()
 			monitor, _ := NewRequestRateMonitor(deps).(*requestRateMonitor)
@@ -55,6 +68,18 @@ func TestRequestRateMonitor(t *testing.T) {
 					ChallengeComplexity: 1,
 				},
 				monitor.challengeCondition(deps.MaxUnverifiedClientRequests-1, deps.MaxUnverifiedRequests+1),
+			)
+		})
+		t.Run("should increase global requests verification if at 2x global capacity", func(t *testing.T) {
+			deps := newMockDeps()
+			monitor, _ := NewRequestRateMonitor(deps).(*requestRateMonitor)
+			assert.Equal(
+				t,
+				RecordRequestResult{
+					ChallengeRequired:   true,
+					ChallengeComplexity: 2,
+				},
+				monitor.challengeCondition(deps.MaxUnverifiedClientRequests-1, deps.MaxUnverifiedRequests*2+1),
 			)
 		})
 	})
