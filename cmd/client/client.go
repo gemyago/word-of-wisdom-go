@@ -6,6 +6,7 @@ import (
 	"io"
 	"log/slog"
 	"os"
+	"time"
 	"word-of-wisdom-go/pkg/diag"
 
 	"github.com/spf13/cobra"
@@ -17,6 +18,9 @@ type runWOWCommandParams struct {
 
 	RootLogger *slog.Logger
 
+	// config
+	MaxSessionDuration time.Duration `name:"config.client.maxSessionDuration"`
+
 	// client specific deps
 	SessionDialer
 	WOWCommand
@@ -27,6 +31,9 @@ type runWOWCommandParams struct {
 }
 
 func runWOWCommand(ctx context.Context, params runWOWCommandParams) error {
+	ctx, cancel := context.WithDeadline(ctx, time.Now().Add(params.MaxSessionDuration))
+	defer cancel()
+
 	logger := params.RootLogger.WithGroup("client")
 	logger.DebugContext(ctx, "Establishing connection", slog.String("address", params.serverAddress))
 

@@ -51,6 +51,7 @@ func Provide(container *dig.Container, cfg *viper.Viper) error {
 
 		// client config
 		provideConfigValue(cfg, "client.ioTimeout").asDuration(),
+		provideConfigValue(cfg, "client.maxSessionDuration").asDuration(),
 
 		// monitoring config
 		provideConfigValue(cfg, "monitoring.windowDuration").asDuration(),

@@ -5,7 +5,8 @@
     "maxSessionDuration": "10s"
   },
   "client": {
-    "ioTimeout": "2s"
+    "ioTimeout": "2s",
+    "maxSessionDuration": "10s"
   },
   "monitoring": {
     "windowDuration": "60s",
