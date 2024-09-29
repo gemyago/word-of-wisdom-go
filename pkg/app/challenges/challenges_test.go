@@ -20,7 +20,8 @@ import (
 func TestChallenges(t *testing.T) {
 	newMockDeps := func() Deps {
 		return Deps{
-			TimeProvider: services.NewMockNow(),
+			TimeProvider:              services.NewMockNow(),
+			MaxSolveChallengeDuration: 1000 * time.Hour,
 		}
 	}
 
@@ -154,12 +155,39 @@ func TestChallenges(t *testing.T) {
 			require.ErrorContains(t, err, "deadline reached")
 			assert.Equal(t, "", solution)
 		})
+		t.Run("should exit on default deadline", func(t *testing.T) {
+			deps := newMockDeps()
+			wantComplexity := 5 + rand.IntN(10)
+			challenge := faker.UUIDHyphenated()
+
+			mockNow, _ := deps.TimeProvider.(*services.MockNow)
+			wantMaxDuration := 10 * time.Second
+			wantDeadline := mockNow.Now().Add(wantMaxDuration)
+			deps.MaxSolveChallengeDuration = wantMaxDuration
+
+			iterationsCount := 0
+			deps.computeHashFn = func(_ []byte) []byte {
+				iterationsCount++
+				if iterationsCount > 100 {
+					mockNow.SetValue(wantDeadline)
+				}
+				return newMockHashWithLeadingZeros(rand.IntN(wantComplexity-1), faker.Word())
+			}
+
+			challenges := NewChallenges(deps)
+
+			ctx := context.Background()
+			solution, err := challenges.SolveChallenge(ctx, wantComplexity, challenge)
+			require.ErrorContains(t, err, "deadline reached")
+			assert.Equal(t, "", solution)
+		})
 	})
 
 	t.Run("Integration", func(t *testing.T) {
 		challenges := NewChallenges(Deps{
-			TimeProvider:     services.NewTimeProvider(),
-			CryptoRandReader: cryptoRand.Read,
+			TimeProvider:              services.NewTimeProvider(),
+			CryptoRandReader:          cryptoRand.Read,
+			MaxSolveChallengeDuration: 10 * time.Second,
 		})
 
 		clientID := faker.UUIDHyphenated()

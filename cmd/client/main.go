@@ -12,6 +12,7 @@ func setupCommands() *cobra.Command {
 	rootCmd := newRootCmd(container)
 	rootCmd.AddCommand(
 		newClientCmd(container),
+		newSolveChallengeCmd(container),
 	)
 	return rootCmd
 }

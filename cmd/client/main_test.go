@@ -31,4 +31,12 @@ func TestMain(t *testing.T) {
 			assert.ErrorContains(t, gotErr, "failed to read config")
 		})
 	})
+	t.Run("solve-challenge", func(t *testing.T) {
+		t.Run("should solve the challenge", func(t *testing.T) {
+			rootCmd := setupCommands()
+			challenge := faker.Word()
+			rootCmd.SetArgs([]string{"solve-challenge", "--silent", "--challenge", challenge, "--logs-file", "../../test.log"})
+			require.NoError(t, rootCmd.Execute())
+		})
+	})
 }

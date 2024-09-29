@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand/v2"
 	"testing"
+	"time"
 
 	"github.com/go-faker/faker/v4"
 	"github.com/stretchr/testify/assert"
@@ -11,13 +12,19 @@ import (
 )
 
 func TestDialer(t *testing.T) {
+	makeMockDeps := func() SessionDialerDeps {
+		return SessionDialerDeps{
+			IOTimeout: 10 * time.Second,
+		}
+	}
+
 	t.Run("should establish target session", func(t *testing.T) {
 		port := 50000 + rand.IntN(15000)
 		srv := newMockTCPServer()
 		require.NoError(t, srv.Start(port))
 		defer srv.stop()
 
-		dialer := SessionDialerFunc(dialSession)
+		dialer := newSessionDialer(makeMockDeps())
 		session, cleanup, err := dialer.DialSession("tcp", fmt.Sprintf(":%d", port))
 		require.NoError(t, err)
 		defer cleanup() //nolint: errcheck //server stops sooner
@@ -34,7 +41,7 @@ func TestDialer(t *testing.T) {
 	t.Run("should handle connection error", func(t *testing.T) {
 		port := 50000 + rand.IntN(15000)
 
-		dialer := SessionDialerFunc(dialSession)
+		dialer := newSessionDialer(makeMockDeps())
 		_, _, err := dialer.DialSession("tcp", fmt.Sprintf(":%d", port))
 		require.Error(t, err)
 	})

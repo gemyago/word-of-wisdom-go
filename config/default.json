@@ -1,11 +1,19 @@
 {
   "defaultLogLevel": "INFO",
   "tcpServer": {
-    "port": 44221
+    "port": 44221,
+    "maxSessionDuration": "10s"
+  },
+  "client": {
+    "ioTimeout": "2s",
+    "maxSessionDuration": "10s"
   },
   "monitoring": {
     "windowDuration": "60s",
     "maxUnverifiedClientRequests": 1,
     "maxUnverifiedRequests": 600
+  },
+  "challenges": {
+    "maxSolveChallengeDuration": "2m"
   }
 }
