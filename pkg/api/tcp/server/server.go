@@ -64,13 +64,13 @@ func extractHost(addr string) string {
 
 func (l *Listener) processAcceptedConnection(ctx context.Context, c net.Conn) {
 	// This can be transformed into a middleware like approach
-	connectionCtx := diag.SetLogAttributesToContext(
+	ctx = diag.SetLogAttributesToContext(
 		ctx, diag.LogAttributes{CorrelationID: slog.StringValue(l.uuidGenerator())},
 	)
 	defer func() {
 		if rvr := recover(); rvr != nil {
 			l.logger.ErrorContext(
-				connectionCtx,
+				ctx,
 				"Unhandled panic",
 				slog.Any("panic", rvr),
 				slog.String("stack", string(debug.Stack())),
@@ -79,7 +79,7 @@ func (l *Listener) processAcceptedConnection(ctx context.Context, c net.Conn) {
 		}
 	}()
 	deadline := time.Now().Add(l.maxSessionDuration)
-	connectionCtx, cancel := context.WithDeadline(connectionCtx, deadline)
+	ctx, cancel := context.WithDeadline(ctx, deadline)
 	defer cancel()
 
 	remoteAddr := c.RemoteAddr().String()
