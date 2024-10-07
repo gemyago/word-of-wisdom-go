@@ -71,13 +71,13 @@ func newRootCmd(container *dig.Container) *cobra.Command {
 			di.ProvideAll(container,
 				di.ProvideValue(rootLogger),
 
-				// app layer
-				challenges.NewChallenges,
-
-				// client deps
+				// client specific deps
 				newSessionDialer,
 				newWOWCommand,
 			),
+
+			// app layer
+			challenges.Register(container),
 
 			// service layer
 			services.Register(container),

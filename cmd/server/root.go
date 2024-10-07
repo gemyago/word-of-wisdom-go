@@ -72,16 +72,15 @@ func newRootCmd(container *dig.Container) *cobra.Command {
 			config.Provide(container, cfg),
 			di.ProvideAll(container,
 				di.ProvideValue(rootLogger),
-
-				// api layer
-				commands.NewHandler,
-
-				// app layer
-				challenges.NewChallenges,
-				challenges.NewRequestRateMonitor,
-				wow.NewQuery,
 			),
+
+			// api layer
+			commands.Register(container),
 			server.Register(container),
+
+			// app layer
+			challenges.Register(container),
+			wow.Register(container),
 
 			// services
 			services.Register(container),
