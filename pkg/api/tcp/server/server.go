@@ -109,7 +109,7 @@ func (l *Listener) Start(ctx context.Context) error {
 	var err error
 	l.listener, err = net.Listen("tcp", fmt.Sprintf(":%d", l.port))
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to start listener: %w", err)
 	}
 	close(l.listeningSignal)
 

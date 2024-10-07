@@ -33,7 +33,7 @@ type runWOWCommandParams struct {
 func writeLines(w io.Writer, lines ...string) error {
 	for _, line := range lines {
 		if _, err := fmt.Fprintln(w, line); err != nil {
-			return err
+			return fmt.Errorf("failed to write line: %w", err)
 		}
 	}
 	return nil

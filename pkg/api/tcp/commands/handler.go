@@ -58,11 +58,11 @@ func (h *commandHandler) performChallengeVerification(
 	h.trace(ctx, "Requiring to solve challenge", slog.Int("complexity", monitoringResult.ChallengeComplexity))
 	challengeData := fmt.Sprintf("CHALLENGE_REQUIRED: %s;%d", challenge, monitoringResult.ChallengeComplexity)
 	if err = con.WriteLine(challengeData); err != nil {
-		return false, err
+		return false, fmt.Errorf("failed to send challenge: %w", err)
 	}
 	var cmd string
 	if cmd, err = con.ReadLine(); err != nil {
-		return false, err
+		return false, fmt.Errorf("failed to read challenge result: %w", err)
 	}
 	if strings.Index(cmd, "CHALLENGE_RESULT:") != 0 {
 		h.trace(ctx, "Got unexpected challenge result", slog.String("data", cmd))
