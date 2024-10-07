@@ -13,6 +13,20 @@ import (
 	"go.uber.org/dig"
 )
 
+// protocol related constants.
+const (
+	commandGetWow           = "GET_WOW"
+	wowResponsePrefix       = "WOW: "
+	challengeRequired       = "CHALLENGE_REQUIRED"
+	challengeRequiredPrefix = challengeRequired + ":"
+	challengeResultPrefix   = "CHALLENGE_RESULT:"
+
+	errBadCmdResponse            = "ERR: BAD_CMD"
+	errInternalError             = "ERR: INTERNAL_ERROR"
+	errUnexpectedChallengeResult = "ERR: UNEXPECTED_CHALLENGE_RESULT"
+	errChallengeVerificationFail = "ERR: CHALLENGE_VERIFICATION_FAILED"
+)
+
 type CommandHandlerDeps struct {
 	dig.In
 
@@ -56,7 +70,9 @@ func (h *commandHandler) performChallengeVerification(
 	}
 
 	h.trace(ctx, "Requiring to solve challenge", slog.Int("complexity", monitoringResult.ChallengeComplexity))
-	challengeData := fmt.Sprintf("CHALLENGE_REQUIRED: %s;%d", challenge, monitoringResult.ChallengeComplexity)
+	challengeData := fmt.Sprintf(
+		"%s %s;%d",
+		challengeRequiredPrefix, challenge, monitoringResult.ChallengeComplexity)
 	if err = con.WriteLine(challengeData); err != nil {
 		return false, fmt.Errorf("failed to send challenge: %w", err)
 	}
@@ -64,18 +80,18 @@ func (h *commandHandler) performChallengeVerification(
 	if cmd, err = con.ReadLine(); err != nil {
 		return false, fmt.Errorf("failed to read challenge result: %w", err)
 	}
-	if strings.Index(cmd, "CHALLENGE_RESULT:") != 0 {
+	if strings.Index(cmd, challengeResultPrefix) != 0 {
 		h.trace(ctx, "Got unexpected challenge result", slog.String("data", cmd))
-		return false, con.WriteLine("ERR: UNEXPECTED_CHALLENGE_RESULT")
+		return false, con.WriteLine(errUnexpectedChallengeResult)
 	}
 
 	if !h.Challenges.VerifySolution(
 		monitoringResult.ChallengeComplexity,
 		challenge,
-		strings.Trim(cmd[len("CHALLENGE_RESULT:"):], " "),
+		strings.Trim(cmd[len(challengeResultPrefix):], " "),
 	) {
 		h.trace(ctx, "Challenge verification failed", slog.String("data", cmd))
-		return false, con.WriteLine("ERR: CHALLENGE_VERIFICATION_FAILED")
+		return false, con.WriteLine(errChallengeVerificationFail)
 	}
 	return true, nil
 }
@@ -92,9 +108,9 @@ func (h *commandHandler) Handle(ctx context.Context, con networking.Session) err
 	// - the HandleCommands will read the command from the connection, and forward
 	//   the processing to particular command implementation
 	// Keeping it simple for now since we need just a single command.
-	if cmd != "GET_WOW" {
+	if cmd != commandGetWow {
 		h.trace(ctx, "Got bad command", slog.String("cmd", cmd))
-		return con.WriteLine("ERR: BAD_CMD")
+		return con.WriteLine(errBadCmdResponse)
 	}
 
 	monitoringResult, err := h.RequestRateMonitor.RecordRequest(ctx, con.ClientID())
@@ -104,7 +120,7 @@ func (h *commandHandler) Handle(ctx context.Context, con networking.Session) err
 			slog.String("clientID", con.ClientID()),
 			diag.ErrAttr(err),
 		)
-		return con.WriteLine("ERR: INTERNAL_ERROR")
+		return con.WriteLine(errInternalError)
 	}
 
 	if monitoringResult.ChallengeRequired {
@@ -124,5 +140,5 @@ func (h *commandHandler) Handle(ctx context.Context, con networking.Session) err
 	}
 
 	h.trace(ctx, "Responding with WOW")
-	return con.WriteLine("WOW: " + wow)
+	return con.WriteLine(wowResponsePrefix + wow)
 }
