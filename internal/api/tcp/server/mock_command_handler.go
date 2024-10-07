@@ -2,7 +2,7 @@
 
 //go:build !release
 
-package commands
+package server
 
 import (
 	context "context"
@@ -24,9 +24,9 @@ func (_m *MockCommandHandler) EXPECT() *MockCommandHandler_Expecter {
 	return &MockCommandHandler_Expecter{mock: &_m.Mock}
 }
 
-// Handle provides a mock function with given fields: ctx, con
-func (_m *MockCommandHandler) Handle(ctx context.Context, con *networking.Session) error {
-	ret := _m.Called(ctx, con)
+// Handle provides a mock function with given fields: ctx, session
+func (_m *MockCommandHandler) Handle(ctx context.Context, session *networking.Session) error {
+	ret := _m.Called(ctx, session)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Handle")
@@ -34,7 +34,7 @@ func (_m *MockCommandHandler) Handle(ctx context.Context, con *networking.Sessio
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, *networking.Session) error); ok {
-		r0 = rf(ctx, con)
+		r0 = rf(ctx, session)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -49,12 +49,12 @@ type MockCommandHandler_Handle_Call struct {
 
 // Handle is a helper method to define mock.On call
 //   - ctx context.Context
-//   - con *networking.Session
-func (_e *MockCommandHandler_Expecter) Handle(ctx interface{}, con interface{}) *MockCommandHandler_Handle_Call {
-	return &MockCommandHandler_Handle_Call{Call: _e.mock.On("Handle", ctx, con)}
+//   - session *networking.Session
+func (_e *MockCommandHandler_Expecter) Handle(ctx interface{}, session interface{}) *MockCommandHandler_Handle_Call {
+	return &MockCommandHandler_Handle_Call{Call: _e.mock.On("Handle", ctx, session)}
 }
 
-func (_c *MockCommandHandler_Handle_Call) Run(run func(ctx context.Context, con *networking.Session)) *MockCommandHandler_Handle_Call {
+func (_c *MockCommandHandler_Handle_Call) Run(run func(ctx context.Context, session *networking.Session)) *MockCommandHandler_Handle_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(*networking.Session))
 	})

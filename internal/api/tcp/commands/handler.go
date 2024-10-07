@@ -38,33 +38,22 @@ type CommandHandlerDeps struct {
 	wow.Query
 }
 
-type CommandHandler interface {
-	Handle(ctx context.Context, con *networking.Session) error
-}
-
-type commandHandler struct {
-	CommandHandlerDeps
+type CommandHandler struct {
+	deps   CommandHandlerDeps
 	logger *slog.Logger
 }
 
-func (h *commandHandler) trace(ctx context.Context, msg string, args ...any) {
+func (h *CommandHandler) trace(ctx context.Context, msg string, args ...any) {
 	h.logger.DebugContext(ctx, msg, args...)
 }
 
-func NewHandler(deps CommandHandlerDeps) CommandHandler {
-	return &commandHandler{
-		CommandHandlerDeps: deps,
-		logger:             deps.RootLogger.WithGroup("tcp.server.handler"),
-	}
-}
-
-func (h *commandHandler) performChallengeVerification(
+func (h *CommandHandler) performChallengeVerification(
 	ctx context.Context,
 	session *networking.Session,
 	monitoringResult challenges.RecordRequestResult,
 ) (bool, error) {
 	var challenge string
-	challenge, err := h.Challenges.GenerateNewChallenge(session.ClientID())
+	challenge, err := h.deps.Challenges.GenerateNewChallenge(session.ClientID())
 	if err != nil {
 		return false, fmt.Errorf("failed to generate new challenge: %w", err)
 	}
@@ -85,7 +74,7 @@ func (h *commandHandler) performChallengeVerification(
 		return false, session.WriteLine(errUnexpectedChallengeResult)
 	}
 
-	if !h.Challenges.VerifySolution(
+	if !h.deps.Challenges.VerifySolution(
 		monitoringResult.ChallengeComplexity,
 		challenge,
 		strings.Trim(cmd[len(ChallengeResultPrefix):], " "),
@@ -96,7 +85,7 @@ func (h *commandHandler) performChallengeVerification(
 	return true, nil
 }
 
-func (h *commandHandler) Handle(ctx context.Context, con *networking.Session) error {
+func (h *CommandHandler) Handle(ctx context.Context, con *networking.Session) error {
 	cmd, err := con.ReadLine()
 	if err != nil {
 		return err
@@ -113,7 +102,7 @@ func (h *commandHandler) Handle(ctx context.Context, con *networking.Session) er
 		return con.WriteLine(errBadCmdResponse)
 	}
 
-	monitoringResult, err := h.RequestRateMonitor.RecordRequest(ctx, con.ClientID())
+	monitoringResult, err := h.deps.RequestRateMonitor.RecordRequest(ctx, con.ClientID())
 	if err != nil {
 		h.logger.ErrorContext(ctx,
 			"Failed to record request",
@@ -134,11 +123,18 @@ func (h *commandHandler) Handle(ctx context.Context, con *networking.Session) er
 		}
 	}
 
-	wow, err := h.Query.GetNextWoW(ctx)
+	wow, err := h.deps.Query.GetNextWoW(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to get next wow: %w", err)
 	}
 
 	h.trace(ctx, "Responding with WOW")
 	return con.WriteLine(WowResponsePrefix + wow)
+}
+
+func NewHandler(deps CommandHandlerDeps) *CommandHandler {
+	return &CommandHandler{
+		deps:   deps,
+		logger: deps.RootLogger.WithGroup("tcp.server.handler"),
+	}
 }

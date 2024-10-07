@@ -8,7 +8,6 @@ import (
 	"net"
 	"testing"
 	"time"
-	"word-of-wisdom-go/internal/api/tcp/commands"
 	"word-of-wisdom-go/internal/diag"
 	"word-of-wisdom-go/internal/services"
 	"word-of-wisdom-go/internal/services/networking"
@@ -26,7 +25,7 @@ func TestListener(t *testing.T) {
 			RootLogger:         diag.RootTestLogger(),
 			Port:               50000 + rand.IntN(15000),
 			MaxSessionDuration: 10 * time.Second,
-			CommandHandler:     commands.NewMockCommandHandler(t),
+			Handler:            NewMockCommandHandler(t),
 			UUIDGenerator:      services.NewUUIDGenerator(),
 		}
 	}
@@ -56,7 +55,7 @@ func TestListener(t *testing.T) {
 			srv.WaitListening()
 			defer srv.Close()
 
-			mockHandler, _ := deps.CommandHandler.(*commands.MockCommandHandler)
+			mockHandler, _ := deps.Handler.(*MockCommandHandler)
 			handleSignal := make(chan struct{})
 			wantData := faker.Sentence()
 			mockHandler.EXPECT().Handle(mock.Anything, mock.Anything).RunAndReturn(
@@ -86,7 +85,7 @@ func TestListener(t *testing.T) {
 			srv.WaitListening()
 			defer srv.Close()
 
-			mockHandler, _ := deps.CommandHandler.(*commands.MockCommandHandler)
+			mockHandler, _ := deps.Handler.(*MockCommandHandler)
 			handleSignal := make(chan struct{})
 			mockHandler.EXPECT().Handle(mock.Anything, mock.Anything).RunAndReturn(
 				func(_ context.Context, _ *networking.Session) error {
@@ -112,7 +111,7 @@ func TestListener(t *testing.T) {
 			srv.WaitListening()
 			defer srv.Close()
 
-			mockHandler, _ := deps.CommandHandler.(*commands.MockCommandHandler)
+			mockHandler, _ := deps.Handler.(*MockCommandHandler)
 			handleSignal := make(chan struct{})
 			mockHandler.EXPECT().Handle(mock.Anything, mock.Anything).RunAndReturn(
 				func(_ context.Context, _ *networking.Session) error {

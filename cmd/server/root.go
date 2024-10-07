@@ -75,13 +75,14 @@ func newRootCmd(container *dig.Container) *cobra.Command {
 
 				// api layer
 				commands.NewHandler,
-				server.NewListener,
 
 				// app layer
 				challenges.NewChallenges,
 				challenges.NewRequestRateMonitor,
 				wow.NewQuery,
 			),
+			server.Register(container),
+
 			// services
 			services.Register(container),
 		)

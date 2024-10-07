@@ -9,13 +9,16 @@ import (
 	"runtime/debug"
 	"strings"
 	"time"
-	"word-of-wisdom-go/internal/api/tcp/commands"
 	"word-of-wisdom-go/internal/diag"
 	"word-of-wisdom-go/internal/services"
 	"word-of-wisdom-go/internal/services/networking"
 
 	"go.uber.org/dig"
 )
+
+type commandHandler interface {
+	Handle(ctx context.Context, session *networking.Session) error
+}
 
 type ListenerDeps struct {
 	dig.In
@@ -27,7 +30,7 @@ type ListenerDeps struct {
 	MaxSessionDuration time.Duration `name:"config.tcpServer.maxSessionDuration"`
 
 	// components
-	commands.CommandHandler
+	Handler commandHandler
 
 	// services
 	services.UUIDGenerator
@@ -36,7 +39,7 @@ type ListenerDeps struct {
 type Listener struct {
 	logger             *slog.Logger
 	listener           net.Listener
-	commandHandler     commands.CommandHandler
+	commandHandler     commandHandler
 	port               int
 	maxSessionDuration time.Duration
 	listeningSignal    chan struct{}
@@ -47,7 +50,7 @@ func NewListener(deps ListenerDeps) *Listener {
 	return &Listener{
 		port:               deps.Port,
 		maxSessionDuration: deps.MaxSessionDuration,
-		commandHandler:     deps.CommandHandler,
+		commandHandler:     deps.Handler,
 		logger:             deps.RootLogger.WithGroup("tcp.server"),
 		listeningSignal:    make(chan struct{}),
 		uuidGenerator:      deps.UUIDGenerator,

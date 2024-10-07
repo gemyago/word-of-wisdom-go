@@ -4,7 +4,7 @@ filename: "mock_{{.InterfaceNameSnake}}.go"
 mock-build-tags: "!release"
 disable-version-string: true
 packages:
-  word-of-wisdom-go/internal/api/tcp/commands:
+  word-of-wisdom-go/internal/api/tcp/server:
     interfaces:
       CommandHandler:
   word-of-wisdom-go/internal/app/challenges:
