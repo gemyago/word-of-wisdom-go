@@ -89,8 +89,8 @@ func (h *commandHandler) Handle(ctx context.Context, con networking.Session) err
 	// If we need to extend it to support multiple commands
 	// then this will need to be refactored roughly as follows:
 	// - new Commands component is added that implement all various commands
-	// - the HandleCommands will read the command from the connection, and forward the processing to particular
-	//   command implementation
+	// - the HandleCommands will read the command from the connection, and forward
+	//   the processing to particular command implementation
 	// Keeping it simple for now since we need just a single command.
 	if cmd != "GET_WOW" {
 		h.trace(ctx, "Got bad command", slog.String("cmd", cmd))
