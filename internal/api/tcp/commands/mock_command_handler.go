@@ -25,7 +25,7 @@ func (_m *MockCommandHandler) EXPECT() *MockCommandHandler_Expecter {
 }
 
 // Handle provides a mock function with given fields: ctx, con
-func (_m *MockCommandHandler) Handle(ctx context.Context, con networking.Session) error {
+func (_m *MockCommandHandler) Handle(ctx context.Context, con *networking.Session) error {
 	ret := _m.Called(ctx, con)
 
 	if len(ret) == 0 {
@@ -33,7 +33,7 @@ func (_m *MockCommandHandler) Handle(ctx context.Context, con networking.Session
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, networking.Session) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *networking.Session) error); ok {
 		r0 = rf(ctx, con)
 	} else {
 		r0 = ret.Error(0)
@@ -49,14 +49,14 @@ type MockCommandHandler_Handle_Call struct {
 
 // Handle is a helper method to define mock.On call
 //   - ctx context.Context
-//   - con networking.Session
+//   - con *networking.Session
 func (_e *MockCommandHandler_Expecter) Handle(ctx interface{}, con interface{}) *MockCommandHandler_Handle_Call {
 	return &MockCommandHandler_Handle_Call{Call: _e.mock.On("Handle", ctx, con)}
 }
 
-func (_c *MockCommandHandler_Handle_Call) Run(run func(ctx context.Context, con networking.Session)) *MockCommandHandler_Handle_Call {
+func (_c *MockCommandHandler_Handle_Call) Run(run func(ctx context.Context, con *networking.Session)) *MockCommandHandler_Handle_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(networking.Session))
+		run(args[0].(context.Context), args[1].(*networking.Session))
 	})
 	return _c
 }
@@ -66,7 +66,7 @@ func (_c *MockCommandHandler_Handle_Call) Return(_a0 error) *MockCommandHandler_
 	return _c
 }
 
-func (_c *MockCommandHandler_Handle_Call) RunAndReturn(run func(context.Context, networking.Session) error) *MockCommandHandler_Handle_Call {
+func (_c *MockCommandHandler_Handle_Call) RunAndReturn(run func(context.Context, *networking.Session) error) *MockCommandHandler_Handle_Call {
 	_c.Call.Return(run)
 	return _c
 }

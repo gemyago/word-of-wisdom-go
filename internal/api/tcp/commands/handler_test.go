@@ -32,12 +32,12 @@ func TestCommands(t *testing.T) {
 			deps := makeMockDeps(t)
 			h := NewHandler(deps)
 
-			session := networking.NewMockSession()
+			session := networking.NewMockSessionController()
 			wantErr := errors.New(faker.Sentence())
 
 			handleErr := make(chan error)
 			go func() {
-				handleErr <- h.Handle(ctx, session)
+				handleErr <- h.Handle(ctx, session.Session)
 			}()
 
 			session.MockSetNextError(wantErr)
@@ -49,11 +49,11 @@ func TestCommands(t *testing.T) {
 			deps := makeMockDeps(t)
 			h := NewHandler(deps)
 
-			session := networking.NewMockSession()
+			session := networking.NewMockSessionController()
 
 			handleErr := make(chan error)
 			go func() {
-				handleErr <- h.Handle(ctx, session)
+				handleErr <- h.Handle(ctx, session.Session)
 			}()
 
 			result := session.MockSendLineAndWaitResult(faker.Word())
@@ -65,10 +65,10 @@ func TestCommands(t *testing.T) {
 			deps := makeMockDeps(t)
 			h := NewHandler(deps)
 
-			session := networking.NewMockSession()
+			ctrl := networking.NewMockSessionController()
 
 			mockMonitor, _ := deps.RequestRateMonitor.(*challenges.MockRequestRateMonitor)
-			mockMonitor.EXPECT().RecordRequest(ctx, session.ClientID()).Return(
+			mockMonitor.EXPECT().RecordRequest(ctx, ctrl.Session.ClientID()).Return(
 				challenges.RecordRequestResult{}, nil,
 			)
 
@@ -78,10 +78,10 @@ func TestCommands(t *testing.T) {
 
 			handleErr := make(chan error)
 			go func() {
-				handleErr <- h.Handle(ctx, session)
+				handleErr <- h.Handle(ctx, ctrl.Session)
 			}()
 
-			result := session.MockSendLineAndWaitResult("GET_WOW")
+			result := ctrl.MockSendLineAndWaitResult("GET_WOW")
 			assert.Equal(t, "WOW: "+wantWow, result)
 			assert.NoError(t, <-handleErr)
 		})
@@ -90,21 +90,21 @@ func TestCommands(t *testing.T) {
 			deps := makeMockDeps(t)
 			h := NewHandler(deps)
 
-			session := networking.NewMockSession()
+			ctrl := networking.NewMockSessionController()
 
 			mockMonitor, _ := deps.RequestRateMonitor.(*challenges.MockRequestRateMonitor)
 			monitorResult := challenges.RecordRequestResult{
 				ChallengeRequired:   true,
 				ChallengeComplexity: 5 + rand.IntN(10),
 			}
-			mockMonitor.EXPECT().RecordRequest(ctx, session.ClientID()).Return(
+			mockMonitor.EXPECT().RecordRequest(ctx, ctrl.Session.ClientID()).Return(
 				monitorResult, nil,
 			)
 
 			wantChallenge := faker.UUIDHyphenated()
 			wantSolution := faker.UUIDHyphenated()
 			mockChallenges, _ := deps.Challenges.(*challenges.MockChallenges)
-			mockChallenges.EXPECT().GenerateNewChallenge(session.ClientID()).Return(wantChallenge, nil)
+			mockChallenges.EXPECT().GenerateNewChallenge(ctrl.Session.ClientID()).Return(wantChallenge, nil)
 			mockChallenges.EXPECT().VerifySolution(
 				monitorResult.ChallengeComplexity,
 				wantChallenge,
@@ -117,13 +117,13 @@ func TestCommands(t *testing.T) {
 
 			handleErr := make(chan error)
 			go func() {
-				handleErr <- h.Handle(ctx, session)
+				handleErr <- h.Handle(ctx, ctrl.Session)
 			}()
 
-			result := session.MockSendLineAndWaitResult("GET_WOW")
+			result := ctrl.MockSendLineAndWaitResult("GET_WOW")
 			assert.Equal(t, fmt.Sprintf("CHALLENGE_REQUIRED: %s;%d", wantChallenge, monitorResult.ChallengeComplexity), result)
 
-			result = session.MockSendLineAndWaitResult("CHALLENGE_RESULT: " + wantSolution)
+			result = ctrl.MockSendLineAndWaitResult("CHALLENGE_RESULT: " + wantSolution)
 			assert.Equal(t, "WOW: "+wantWow, result)
 			assert.NoError(t, <-handleErr)
 		})
@@ -132,19 +132,19 @@ func TestCommands(t *testing.T) {
 			deps := makeMockDeps(t)
 			h := NewHandler(deps)
 
-			session := networking.NewMockSession()
+			ctrl := networking.NewMockSessionController()
 
 			mockMonitor, _ := deps.RequestRateMonitor.(*challenges.MockRequestRateMonitor)
-			mockMonitor.EXPECT().RecordRequest(ctx, session.ClientID()).Return(
+			mockMonitor.EXPECT().RecordRequest(ctx, ctrl.Session.ClientID()).Return(
 				challenges.RecordRequestResult{}, errors.New(faker.Sentence()),
 			)
 
 			handleErr := make(chan error)
 			go func() {
-				handleErr <- h.Handle(ctx, session)
+				handleErr <- h.Handle(ctx, ctrl.Session)
 			}()
 
-			result := session.MockSendLineAndWaitResult("GET_WOW")
+			result := ctrl.MockSendLineAndWaitResult("GET_WOW")
 			assert.Equal(t, "ERR: INTERNAL_ERROR", result)
 			assert.NoError(t, <-handleErr)
 		})
@@ -153,10 +153,10 @@ func TestCommands(t *testing.T) {
 			deps := makeMockDeps(t)
 			h := NewHandler(deps)
 
-			session := networking.NewMockSession()
+			ctrl := networking.NewMockSessionController()
 
 			mockMonitor, _ := deps.RequestRateMonitor.(*challenges.MockRequestRateMonitor)
-			mockMonitor.EXPECT().RecordRequest(ctx, session.ClientID()).Return(
+			mockMonitor.EXPECT().RecordRequest(ctx, ctrl.Session.ClientID()).Return(
 				challenges.RecordRequestResult{}, nil,
 			)
 
@@ -166,10 +166,10 @@ func TestCommands(t *testing.T) {
 
 			handleErr := make(chan error)
 			go func() {
-				handleErr <- h.Handle(ctx, session)
+				handleErr <- h.Handle(ctx, ctrl.Session)
 			}()
 
-			session.MockSendLine("GET_WOW")
+			ctrl.MockSendLine("GET_WOW")
 			assert.ErrorIs(t, <-handleErr, wantErr)
 		})
 		t.Run("should handle challenge generation errors", func(t *testing.T) {
@@ -177,23 +177,23 @@ func TestCommands(t *testing.T) {
 			deps := makeMockDeps(t)
 			h := NewHandler(deps)
 
-			session := networking.NewMockSession()
+			ctrl := networking.NewMockSessionController()
 
 			mockMonitor, _ := deps.RequestRateMonitor.(*challenges.MockRequestRateMonitor)
-			mockMonitor.EXPECT().RecordRequest(ctx, session.ClientID()).Return(
+			mockMonitor.EXPECT().RecordRequest(ctx, ctrl.Session.ClientID()).Return(
 				challenges.RecordRequestResult{ChallengeRequired: true}, nil,
 			)
 
 			wantErr := errors.New(faker.Sentence())
 			mockChallenges, _ := deps.Challenges.(*challenges.MockChallenges)
-			mockChallenges.EXPECT().GenerateNewChallenge(session.ClientID()).Return("", wantErr)
+			mockChallenges.EXPECT().GenerateNewChallenge(ctrl.Session.ClientID()).Return("", wantErr)
 
 			handleErr := make(chan error)
 			go func() {
-				handleErr <- h.Handle(ctx, session)
+				handleErr <- h.Handle(ctx, ctrl.Session)
 			}()
 
-			session.MockSendLine("GET_WOW")
+			ctrl.MockSendLine("GET_WOW")
 			assert.ErrorIs(t, <-handleErr, wantErr)
 		})
 		t.Run("should handle challenge verification error", func(t *testing.T) {
@@ -201,19 +201,19 @@ func TestCommands(t *testing.T) {
 			deps := makeMockDeps(t)
 			h := NewHandler(deps)
 
-			session := networking.NewMockSession()
+			ctrl := networking.NewMockSessionController()
 
 			mockMonitor, _ := deps.RequestRateMonitor.(*challenges.MockRequestRateMonitor)
 			monitorResult := challenges.RecordRequestResult{
 				ChallengeRequired:   true,
 				ChallengeComplexity: 5 + rand.IntN(10),
 			}
-			mockMonitor.EXPECT().RecordRequest(ctx, session.ClientID()).Return(
+			mockMonitor.EXPECT().RecordRequest(ctx, ctrl.Session.ClientID()).Return(
 				monitorResult, nil,
 			)
 
 			mockChallenges, _ := deps.Challenges.(*challenges.MockChallenges)
-			mockChallenges.EXPECT().GenerateNewChallenge(session.ClientID()).Return(faker.Word(), nil)
+			mockChallenges.EXPECT().GenerateNewChallenge(ctrl.Session.ClientID()).Return(faker.Word(), nil)
 			mockChallenges.EXPECT().VerifySolution(
 				mock.Anything,
 				mock.Anything,
@@ -222,12 +222,12 @@ func TestCommands(t *testing.T) {
 
 			handleErr := make(chan error)
 			go func() {
-				handleErr <- h.Handle(ctx, session)
+				handleErr <- h.Handle(ctx, ctrl.Session)
 			}()
 
-			session.MockSendLineAndWaitResult("GET_WOW")
+			ctrl.MockSendLineAndWaitResult("GET_WOW")
 
-			result := session.MockSendLineAndWaitResult("CHALLENGE_RESULT: " + faker.Word())
+			result := ctrl.MockSendLineAndWaitResult("CHALLENGE_RESULT: " + faker.Word())
 			assert.Equal(t, "ERR: CHALLENGE_VERIFICATION_FAILED", result)
 			assert.NoError(t, <-handleErr)
 		})

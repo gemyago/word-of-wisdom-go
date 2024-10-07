@@ -30,7 +30,7 @@ func TestWow(t *testing.T) {
 		cmd := newWOWCommand(deps)
 
 		ctx := context.Background()
-		mockSession := networking.NewMockSession()
+		mockSession := networking.NewMockSessionController()
 		cmdResCh := make(chan lo.Tuple2[string, error])
 		wantWow := faker.Sentence()
 		go func() {
@@ -51,7 +51,7 @@ func TestWow(t *testing.T) {
 		cmd := newWOWCommand(deps)
 
 		ctx := context.Background()
-		mockSession := networking.NewMockSession()
+		mockSession := networking.NewMockSessionController()
 		cmdResCh := make(chan lo.Tuple2[string, error])
 		wantWow := faker.Sentence()
 		wantErr := errors.New(faker.Sentence())
@@ -73,7 +73,7 @@ func TestWow(t *testing.T) {
 		cmd := newWOWCommand(deps)
 
 		ctx := context.Background()
-		mockSession := networking.NewMockSession()
+		mockSession := networking.NewMockSessionController()
 		cmdResCh := make(chan lo.Tuple2[string, error])
 		wantWow := faker.Sentence()
 		wantChallenge := faker.Sentence()
@@ -105,7 +105,7 @@ func TestWow(t *testing.T) {
 		cmd := newWOWCommand(deps)
 
 		ctx := context.Background()
-		mockSession := networking.NewMockSession()
+		mockSession := networking.NewMockSessionController()
 		cmdResCh := make(chan lo.Tuple2[string, error])
 
 		go func() {
@@ -124,7 +124,7 @@ func TestWow(t *testing.T) {
 		cmd := newWOWCommand(deps)
 
 		ctx := context.Background()
-		mockSession := networking.NewMockSession()
+		mockSession := networking.NewMockSessionController()
 		cmdResCh := make(chan lo.Tuple2[string, error])
 
 		mockChallenges, _ := deps.Challenges.(*challenges.MockChallenges)
@@ -150,7 +150,7 @@ func TestWow(t *testing.T) {
 		cmd := newWOWCommand(deps)
 
 		ctx := context.Background()
-		mockSession := networking.NewMockSession()
+		mockSession := networking.NewMockSessionController()
 		cmdResCh := make(chan lo.Tuple2[string, error])
 
 		go func() {
@@ -172,7 +172,7 @@ func TestWow(t *testing.T) {
 		cmd := newWOWCommand(deps)
 
 		ctx := context.Background()
-		mockSession := networking.NewMockSession()
+		mockSession := networking.NewMockSessionController()
 		cmdResCh := make(chan lo.Tuple2[string, error])
 
 		mockChallenges, _ := deps.Challenges.(*challenges.MockChallenges)

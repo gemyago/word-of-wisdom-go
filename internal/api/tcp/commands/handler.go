@@ -39,7 +39,7 @@ type CommandHandlerDeps struct {
 }
 
 type CommandHandler interface {
-	Handle(ctx context.Context, con networking.Session) error
+	Handle(ctx context.Context, con *networking.Session) error
 }
 
 type commandHandler struct {
@@ -60,11 +60,11 @@ func NewHandler(deps CommandHandlerDeps) CommandHandler {
 
 func (h *commandHandler) performChallengeVerification(
 	ctx context.Context,
-	con networking.Session,
+	session *networking.Session,
 	monitoringResult challenges.RecordRequestResult,
 ) (bool, error) {
 	var challenge string
-	challenge, err := h.Challenges.GenerateNewChallenge(con.ClientID())
+	challenge, err := h.Challenges.GenerateNewChallenge(session.ClientID())
 	if err != nil {
 		return false, fmt.Errorf("failed to generate new challenge: %w", err)
 	}
@@ -73,16 +73,16 @@ func (h *commandHandler) performChallengeVerification(
 	challengeData := fmt.Sprintf(
 		"%s%s;%d",
 		ChallengeRequiredPrefix, challenge, monitoringResult.ChallengeComplexity)
-	if err = con.WriteLine(challengeData); err != nil {
+	if err = session.WriteLine(challengeData); err != nil {
 		return false, fmt.Errorf("failed to send challenge: %w", err)
 	}
 	var cmd string
-	if cmd, err = con.ReadLine(); err != nil {
+	if cmd, err = session.ReadLine(); err != nil {
 		return false, fmt.Errorf("failed to read challenge result: %w", err)
 	}
 	if strings.Index(cmd, ChallengeResultPrefix) != 0 {
 		h.trace(ctx, "Got unexpected challenge result", slog.String("data", cmd))
-		return false, con.WriteLine(errUnexpectedChallengeResult)
+		return false, session.WriteLine(errUnexpectedChallengeResult)
 	}
 
 	if !h.Challenges.VerifySolution(
@@ -91,12 +91,12 @@ func (h *commandHandler) performChallengeVerification(
 		strings.Trim(cmd[len(ChallengeResultPrefix):], " "),
 	) {
 		h.trace(ctx, "Challenge verification failed", slog.String("data", cmd))
-		return false, con.WriteLine(errChallengeVerificationFail)
+		return false, session.WriteLine(errChallengeVerificationFail)
 	}
 	return true, nil
 }
 
-func (h *commandHandler) Handle(ctx context.Context, con networking.Session) error {
+func (h *commandHandler) Handle(ctx context.Context, con *networking.Session) error {
 	cmd, err := con.ReadLine()
 	if err != nil {
 		return err

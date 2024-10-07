@@ -5,23 +5,17 @@ import (
 	"io"
 )
 
-type Session interface {
-	ClientID() string
-	ReadLine() (string, error)
-	WriteLine(data string) error
-}
-
-type session struct {
+type Session struct {
 	clientID string
 	stream   io.ReadWriter
 	reader   *bufio.Reader
 }
 
-func (s *session) ClientID() string {
+func (s *Session) ClientID() string {
 	return s.clientID
 }
 
-func (s *session) ReadLine() (string, error) {
+func (s *Session) ReadLine() (string, error) {
 	line, _, err := s.reader.ReadLine()
 	if err != nil {
 		return "", err
@@ -29,13 +23,13 @@ func (s *session) ReadLine() (string, error) {
 	return string(line), nil
 }
 
-func (s *session) WriteLine(data string) error {
+func (s *Session) WriteLine(data string) error {
 	_, err := s.stream.Write(append([]byte(data), '\n'))
 	return err
 }
 
-func NewSession(clientID string, stream io.ReadWriter) Session {
-	return &session{
+func NewSession(clientID string, stream io.ReadWriter) *Session {
+	return &Session{
 		clientID: clientID,
 		stream:   stream,
 		reader:   bufio.NewReader(stream),

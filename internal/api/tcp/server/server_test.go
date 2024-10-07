@@ -60,7 +60,7 @@ func TestListener(t *testing.T) {
 			handleSignal := make(chan struct{})
 			wantData := faker.Sentence()
 			mockHandler.EXPECT().Handle(mock.Anything, mock.Anything).RunAndReturn(
-				func(_ context.Context, s networking.Session) error {
+				func(_ context.Context, s *networking.Session) error {
 					gotData, err := s.ReadLine()
 					require.NoError(t, err)
 					assert.Equal(t, wantData, gotData)
@@ -89,7 +89,7 @@ func TestListener(t *testing.T) {
 			mockHandler, _ := deps.CommandHandler.(*commands.MockCommandHandler)
 			handleSignal := make(chan struct{})
 			mockHandler.EXPECT().Handle(mock.Anything, mock.Anything).RunAndReturn(
-				func(_ context.Context, _ networking.Session) error {
+				func(_ context.Context, _ *networking.Session) error {
 					close(handleSignal)
 					return errors.New(faker.Sentence())
 				},
@@ -115,7 +115,7 @@ func TestListener(t *testing.T) {
 			mockHandler, _ := deps.CommandHandler.(*commands.MockCommandHandler)
 			handleSignal := make(chan struct{})
 			mockHandler.EXPECT().Handle(mock.Anything, mock.Anything).RunAndReturn(
-				func(_ context.Context, _ networking.Session) error {
+				func(_ context.Context, _ *networking.Session) error {
 					close(handleSignal)
 					panic(errors.New(faker.Sentence()))
 				},

@@ -17,7 +17,7 @@ func TestClient(t *testing.T) {
 	t.Run("runWOWCommand", func(t *testing.T) {
 		t.Run("should process wow command", func(t *testing.T) {
 			ctx := context.Background()
-			mockSession := networking.NewMockSession()
+			mockSession := networking.NewMockSessionController()
 			wantWow := faker.Sentence()
 			var output bytes.Buffer
 			wantAddress := faker.Word()
@@ -58,7 +58,7 @@ func TestClient(t *testing.T) {
 				serverAddress: faker.Word(),
 				RootLogger:    diag.RootTestLogger(),
 				SessionDialer: sessionDialerFunc(func(_, _ string) (networking.Session, func() error, error) {
-					return networking.NewMockSession(), func() error { return nil }, nil
+					return networking.NewMockSessionController(), func() error { return nil }, nil
 				}),
 				WOWCommand: WOWCommandFunc(func(_ context.Context, _ networking.Session) (string, error) {
 					return "", wantErr
@@ -72,7 +72,7 @@ func TestClient(t *testing.T) {
 				serverAddress: faker.Word(),
 				RootLogger:    diag.RootTestLogger(),
 				SessionDialer: sessionDialerFunc(func(_, _ string) (networking.Session, func() error, error) {
-					return networking.NewMockSession(), func() error { return errors.New(faker.Sentence()) }, nil
+					return networking.NewMockSessionController(), func() error { return errors.New(faker.Sentence()) }, nil
 				}),
 				WOWCommand: WOWCommandFunc(func(_ context.Context, _ networking.Session) (string, error) {
 					return faker.Sentence(), nil

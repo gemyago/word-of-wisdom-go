@@ -2,54 +2,63 @@
 
 package networking
 
-import "github.com/go-faker/faker/v4"
+import (
+	"github.com/go-faker/faker/v4"
+)
 
-type MockSession struct {
-	clientID    string
+type mockSessionStream struct {
 	readBuffer  chan string
 	writeBuffer chan string
 	nextError   error
 }
 
-func (m *MockSession) ClientID() string {
-	return m.clientID
+func (m *mockSessionStream) Read(p []byte) (int, error) {
+	line := <-m.readBuffer
+	copy(p, line)
+	return len(line), m.nextError
 }
 
-func (m *MockSession) MockSendLine(line string) {
+func (m *mockSessionStream) Write(p []byte) (int, error) {
+	line := string(p)
 	go func() {
-		m.readBuffer <- line
+		m.writeBuffer <- line
+	}()
+	return len(p), nil
+}
+
+type MockSessionController struct {
+	Session *Session
+	stream  *mockSessionStream
+}
+
+func (m *MockSessionController) MockSendLine(line string) {
+	go func() {
+		m.stream.readBuffer <- line
 	}()
 }
 
-func (m *MockSession) MockSendLineAndWaitResult(line string) string {
+func (m *MockSessionController) MockSendLineAndWaitResult(line string) string {
 	go func() {
-		m.readBuffer <- line
+		m.stream.readBuffer <- line
 	}()
-	return <-m.writeBuffer
+	return <-m.stream.writeBuffer
 }
 
-func (m *MockSession) MockWaitResult() string {
-	return <-m.writeBuffer
+func (m *MockSessionController) MockWaitResult() string {
+	return <-m.stream.writeBuffer
 }
 
-func (m *MockSession) MockSetNextError(err error) {
-	m.nextError = err
+func (m *MockSessionController) MockSetNextError(err error) {
+	m.stream.nextError = err
 }
 
-func (m *MockSession) ReadLine() (string, error) {
-	data := <-m.readBuffer
-	return data, m.nextError
-}
-
-func (m *MockSession) WriteLine(data string) error {
-	m.writeBuffer <- data
-	return m.nextError
-}
-
-func NewMockSession() *MockSession {
-	return &MockSession{
-		clientID:    faker.UUIDHyphenated(),
+func NewMockSessionController() *MockSessionController {
+	stream := &mockSessionStream{
 		readBuffer:  make(chan string),
 		writeBuffer: make(chan string),
+	}
+	return &MockSessionController{
+		Session: NewSession(faker.UUIDHyphenated(), stream),
+		stream:  stream,
 	}
 }
