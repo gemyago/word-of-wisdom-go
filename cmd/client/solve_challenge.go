@@ -7,7 +7,7 @@ import (
 	"log/slog"
 	"os"
 	"time"
-	"word-of-wisdom-go/pkg/app/challenges"
+	"word-of-wisdom-go/internal/app/challenges"
 
 	"github.com/samber/lo"
 	"github.com/spf13/cobra"

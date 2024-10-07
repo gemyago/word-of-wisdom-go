@@ -8,7 +8,7 @@ import (
 	"math/big"
 	"strconv"
 	"time"
-	"word-of-wisdom-go/pkg/services"
+	"word-of-wisdom-go/internal/services"
 
 	"go.uber.org/dig"
 )

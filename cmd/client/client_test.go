@@ -5,8 +5,8 @@ import (
 	"context"
 	"errors"
 	"testing"
-	"word-of-wisdom-go/pkg/diag"
-	"word-of-wisdom-go/pkg/services/networking"
+	"word-of-wisdom-go/internal/diag"
+	"word-of-wisdom-go/internal/services/networking"
 
 	"github.com/go-faker/faker/v4"
 	"github.com/stretchr/testify/assert"

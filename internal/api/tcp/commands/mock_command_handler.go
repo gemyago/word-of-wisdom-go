@@ -6,7 +6,7 @@ package commands
 
 import (
 	context "context"
-	networking "word-of-wisdom-go/pkg/services/networking"
+	networking "word-of-wisdom-go/internal/services/networking"
 
 	mock "github.com/stretchr/testify/mock"
 )

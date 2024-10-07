@@ -9,10 +9,10 @@ import (
 	"runtime/debug"
 	"strings"
 	"time"
-	"word-of-wisdom-go/pkg/api/tcp/commands"
-	"word-of-wisdom-go/pkg/diag"
-	"word-of-wisdom-go/pkg/services"
-	"word-of-wisdom-go/pkg/services/networking"
+	"word-of-wisdom-go/internal/api/tcp/commands"
+	"word-of-wisdom-go/internal/diag"
+	"word-of-wisdom-go/internal/services"
+	"word-of-wisdom-go/internal/services/networking"
 
 	"go.uber.org/dig"
 )

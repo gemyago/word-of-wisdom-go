@@ -7,7 +7,7 @@ import (
 	"log/slog"
 	"os"
 	"time"
-	"word-of-wisdom-go/pkg/diag"
+	"word-of-wisdom-go/internal/diag"
 
 	"github.com/spf13/cobra"
 	"go.uber.org/dig"

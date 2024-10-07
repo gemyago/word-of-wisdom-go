@@ -5,7 +5,7 @@ import (
 	cryptoRand "crypto/rand"
 	"testing"
 	"time"
-	"word-of-wisdom-go/pkg/services"
+	"word-of-wisdom-go/internal/services"
 
 	"github.com/go-faker/faker/v4"
 	"github.com/stretchr/testify/require"

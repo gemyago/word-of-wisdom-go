@@ -2,7 +2,7 @@ package config
 
 import (
 	"fmt"
-	"word-of-wisdom-go/pkg/di"
+	"word-of-wisdom-go/internal/di"
 
 	"github.com/spf13/viper"
 	"go.uber.org/dig"

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net"
 	"time"
-	"word-of-wisdom-go/pkg/services/networking"
+	"word-of-wisdom-go/internal/services/networking"
 
 	"go.uber.org/dig"
 )

@@ -3,7 +3,7 @@ package services
 import (
 	"crypto/rand"
 	"time"
-	"word-of-wisdom-go/pkg/di"
+	"word-of-wisdom-go/internal/di"
 
 	"go.uber.org/dig"
 )

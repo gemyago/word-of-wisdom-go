@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"word-of-wisdom-go/pkg/app/challenges"
-	"word-of-wisdom-go/pkg/services/networking"
+	"word-of-wisdom-go/internal/app/challenges"
+	"word-of-wisdom-go/internal/services/networking"
 
 	"go.uber.org/dig"
 )

@@ -5,7 +5,7 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-	"word-of-wisdom-go/pkg/services"
+	"word-of-wisdom-go/internal/services"
 
 	"github.com/samber/lo"
 	"go.uber.org/dig"

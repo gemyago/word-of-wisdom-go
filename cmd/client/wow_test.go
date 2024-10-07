@@ -6,9 +6,9 @@ import (
 	"math/rand/v2"
 	"strconv"
 	"testing"
-	"word-of-wisdom-go/pkg/app/challenges"
-	"word-of-wisdom-go/pkg/diag"
-	"word-of-wisdom-go/pkg/services/networking"
+	"word-of-wisdom-go/internal/app/challenges"
+	"word-of-wisdom-go/internal/diag"
+	"word-of-wisdom-go/internal/services/networking"
 
 	"github.com/go-faker/faker/v4"
 	"github.com/samber/lo"

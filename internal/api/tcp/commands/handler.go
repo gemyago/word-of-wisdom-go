@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"log/slog"
 	"strings"
-	"word-of-wisdom-go/pkg/app/challenges"
-	"word-of-wisdom-go/pkg/app/wow"
-	"word-of-wisdom-go/pkg/diag"
-	"word-of-wisdom-go/pkg/services/networking"
+	"word-of-wisdom-go/internal/app/challenges"
+	"word-of-wisdom-go/internal/app/wow"
+	"word-of-wisdom-go/internal/diag"
+	"word-of-wisdom-go/internal/services/networking"
 
 	"go.uber.org/dig"
 )
