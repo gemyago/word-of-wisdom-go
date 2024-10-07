@@ -74,6 +74,7 @@ func newRootCmd(container *dig.Container) *cobra.Command {
 				// client specific deps
 				newSessionDialer,
 				newWOWCommand,
+				di.ProvideAs[*challenges.Challenges, challengesService],
 			),
 
 			// app layer

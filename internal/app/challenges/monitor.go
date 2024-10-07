@@ -16,10 +16,6 @@ type RecordRequestResult struct {
 	ChallengeComplexity int
 }
 
-type RequestRateMonitor interface {
-	RecordRequest(ctx context.Context, clientID string) (RecordRequestResult, error)
-}
-
 type ChallengeConditionFunc func(nextClientCount, nextGlobalCount int64) RecordRequestResult
 
 type RequestRateMonitorDeps struct {
@@ -43,8 +39,8 @@ type RequestRateMonitorDeps struct {
 	challengeConditionFunc ChallengeConditionFunc
 }
 
-type requestRateMonitor struct {
-	RequestRateMonitorDeps
+type RequestRateMonitor struct {
+	deps RequestRateMonitorDeps
 
 	requestRateByClient sync.Map
 	globalRequestsCount atomic.Int64
@@ -54,21 +50,21 @@ type requestRateMonitor struct {
 }
 
 // challengeCondition defines if challenge will be required and the complexity.
-func (m *requestRateMonitor) challengeCondition(nextClientCounter, nextGlobalCount int64) RecordRequestResult {
+func (m *RequestRateMonitor) challengeCondition(nextClientCounter, nextGlobalCount int64) RecordRequestResult {
 	challengeRequired := false
 	complexityRequired := 0
 
-	if nextClientCounter > m.MaxUnverifiedClientRequests {
+	if nextClientCounter > m.deps.MaxUnverifiedClientRequests {
 		challengeRequired = true
 
 		// We just grow it linearly, at some point (somewhere after 5 or 6)
 		// it's just going to become unreasonably complex to proceed
-		complexityRequired = int(nextClientCounter / m.MaxUnverifiedClientRequests)
+		complexityRequired = int(nextClientCounter / m.deps.MaxUnverifiedClientRequests)
 	}
 
-	if !challengeRequired && nextGlobalCount > m.MaxUnverifiedRequests {
+	if !challengeRequired && nextGlobalCount > m.deps.MaxUnverifiedRequests {
 		challengeRequired = true
-		globalCapacityScale := nextGlobalCount / m.MaxUnverifiedRequests
+		globalCapacityScale := nextGlobalCount / m.deps.MaxUnverifiedRequests
 
 		// If we're under pressure globally (current rate is 2x more than global threshold)
 		// then increase min complexity for all users
@@ -84,7 +80,7 @@ func (m *requestRateMonitor) challengeCondition(nextClientCounter, nextGlobalCou
 	}
 }
 
-func (m *requestRateMonitor) RecordRequest(_ context.Context, clientID string) (RecordRequestResult, error) {
+func (m *RequestRateMonitor) RecordRequest(_ context.Context, clientID string) (RecordRequestResult, error) {
 	// We are not using the context yet, but in a real world system it may be required
 	// since we will very likely store counters somewhere
 
@@ -93,9 +89,9 @@ func (m *requestRateMonitor) RecordRequest(_ context.Context, clientID string) (
 	// and keep this data in something like redis, or use some other replication mechanism
 	// and also use some sliding window algo with per client window.
 
-	now := m.Now().UnixMilli()
+	now := m.deps.Now().UnixMilli()
 	lastTimestamp := m.windowStartedAt.Load()
-	if now-lastTimestamp > m.WindowDuration.Milliseconds() {
+	if now-lastTimestamp > m.deps.WindowDuration.Milliseconds() {
 		if m.windowStartedAt.CompareAndSwap(lastTimestamp, now) {
 			m.globalRequestsCount.Store(0)
 			m.requestRateByClient.Clear()
@@ -106,15 +102,15 @@ func (m *requestRateMonitor) RecordRequest(_ context.Context, clientID string) (
 	nextClientCounter := atomic.AddInt64(currentClientCounter.(*int64), 1)
 	nextGlobalCount := m.globalRequestsCount.Add(1)
 
-	return m.challengeConditionFunc(nextClientCounter, nextGlobalCount), nil
+	return m.deps.challengeConditionFunc(nextClientCounter, nextGlobalCount), nil
 }
 
-func NewRequestRateMonitor(deps RequestRateMonitorDeps) RequestRateMonitor {
-	m := &requestRateMonitor{
-		RequestRateMonitorDeps: deps,
+func NewRequestRateMonitor(deps RequestRateMonitorDeps) *RequestRateMonitor {
+	m := &RequestRateMonitor{
+		deps: deps,
 	}
-	if m.challengeConditionFunc == nil {
-		m.challengeConditionFunc = m.challengeCondition
+	if m.deps.challengeConditionFunc == nil {
+		m.deps.challengeConditionFunc = m.challengeCondition
 	}
 	return m
 }

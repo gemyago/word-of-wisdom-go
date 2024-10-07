@@ -6,7 +6,6 @@ import (
 	"log/slog"
 	"strings"
 	"word-of-wisdom-go/internal/app/challenges"
-	"word-of-wisdom-go/internal/app/wow"
 	"word-of-wisdom-go/internal/diag"
 	"word-of-wisdom-go/internal/services/networking"
 
@@ -27,15 +26,28 @@ const (
 	errChallengeVerificationFail = "ERR: CHALLENGE_VERIFICATION_FAILED"
 )
 
+type wowQuery interface {
+	GetNextWoW(_ context.Context) (string, error)
+}
+
+type requestRateMonitor interface {
+	RecordRequest(ctx context.Context, clientID string) (challenges.RecordRequestResult, error)
+}
+
+type challengesService interface {
+	GenerateNewChallenge(clientID string) (string, error)
+	VerifySolution(complexity int, challenge, solution string) bool
+}
+
 type CommandHandlerDeps struct {
 	dig.In
 
 	RootLogger *slog.Logger
 
 	// components
-	challenges.RequestRateMonitor
-	challenges.Challenges
-	wow.Query
+	RequestRateMonitor requestRateMonitor
+	Challenges         challengesService
+	Query              wowQuery
 }
 
 type CommandHandler struct {

@@ -6,15 +6,11 @@ import (
 	"math/rand/v2"
 )
 
-type Query interface {
-	GetNextWoW(ctx context.Context) (string, error)
-}
-
-type query struct {
+type Query struct {
 	phrases []string
 }
 
-func (q *query) GetNextWoW(_ context.Context) (string, error) {
+func (q *Query) GetNextWoW(_ context.Context) (string, error) {
 	// Using hardcoded list of phrases
 	// We may want to change it to go to some API to get a next phrase
 	// and fallback to the below if it failed. Or store them in a DB...
@@ -23,8 +19,8 @@ func (q *query) GetNextWoW(_ context.Context) (string, error) {
 	return q.phrases[nextIndex], nil
 }
 
-func NewQuery() Query {
-	return &query{
+func NewQuery() *Query {
+	return &Query{
 		phrases: []string{
 			"You create your own opportunities. Success doesn’t just come and find you–you have to go out and get it.",
 			"Never break your promises. Keep every promise; it makes you credible.",

@@ -9,7 +9,6 @@ import (
 
 func Register(container *dig.Container) error {
 	return di.ProvideAll(container,
-		// Register CommandHandler implementation
 		di.ProvideAs[*commands.CommandHandler, commandHandler],
 
 		NewListener,

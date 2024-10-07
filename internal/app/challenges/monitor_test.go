@@ -26,7 +26,7 @@ func TestRequestRateMonitor(t *testing.T) {
 	t.Run("challengeCondition", func(t *testing.T) {
 		t.Run("should allow unverified requests within the limit", func(t *testing.T) {
 			deps := newMockDeps()
-			monitor, _ := NewRequestRateMonitor(deps).(*requestRateMonitor)
+			monitor := NewRequestRateMonitor(deps)
 			assert.Equal(
 				t,
 				RecordRequestResult{},
@@ -35,7 +35,7 @@ func TestRequestRateMonitor(t *testing.T) {
 		})
 		t.Run("should require client requests verification above threshold", func(t *testing.T) {
 			deps := newMockDeps()
-			monitor, _ := NewRequestRateMonitor(deps).(*requestRateMonitor)
+			monitor := NewRequestRateMonitor(deps)
 			assert.Equal(
 				t,
 				RecordRequestResult{
@@ -47,7 +47,7 @@ func TestRequestRateMonitor(t *testing.T) {
 		})
 		t.Run("should grow client request verification complexity linearly", func(t *testing.T) {
 			deps := newMockDeps()
-			monitor, _ := NewRequestRateMonitor(deps).(*requestRateMonitor)
+			monitor := NewRequestRateMonitor(deps)
 			wantComplexity := 1 + rand.IntN(10)
 			assert.Equal(
 				t,
@@ -60,7 +60,7 @@ func TestRequestRateMonitor(t *testing.T) {
 		})
 		t.Run("should require global requests verification above threshold", func(t *testing.T) {
 			deps := newMockDeps()
-			monitor, _ := NewRequestRateMonitor(deps).(*requestRateMonitor)
+			monitor := NewRequestRateMonitor(deps)
 			assert.Equal(
 				t,
 				RecordRequestResult{
@@ -72,7 +72,7 @@ func TestRequestRateMonitor(t *testing.T) {
 		})
 		t.Run("should increase global requests verification if at 2x global capacity", func(t *testing.T) {
 			deps := newMockDeps()
-			monitor, _ := NewRequestRateMonitor(deps).(*requestRateMonitor)
+			monitor := NewRequestRateMonitor(deps)
 			assert.Equal(
 				t,
 				RecordRequestResult{

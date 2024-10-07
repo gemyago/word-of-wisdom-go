@@ -7,7 +7,6 @@ import (
 	"log/slog"
 	"os"
 	"time"
-	"word-of-wisdom-go/internal/app/challenges"
 
 	"github.com/samber/lo"
 	"github.com/spf13/cobra"
@@ -19,7 +18,7 @@ type runSolveChallengeCommandParams struct {
 
 	RootLogger *slog.Logger
 
-	challenges.Challenges
+	Challenges challengesService
 
 	// client params
 	challengeToSolve string

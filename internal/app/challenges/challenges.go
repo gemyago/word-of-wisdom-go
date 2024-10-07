@@ -33,26 +33,6 @@ func countLeadingZeros(hash []byte) int {
 	return count
 }
 
-type Challenges interface {
-	GenerateNewChallenge(clientID string) (string, error)
-	VerifySolution(
-		complexity int,
-		challenge string,
-		solution string,
-	) bool
-
-	// SolveChallenge returns a nonce that is a solution of the challenge.
-	// It is used by client side only and
-	// in real world scenario this may sit in it's own repo
-	// but keeping it simple for now.
-	// Returns error if the solution was not found
-	SolveChallenge(
-		ctx context.Context,
-		complexity int,
-		challenge string,
-	) (string, error)
-}
-
 type Deps struct {
 	dig.In `ignore-unexported:"true"`
 
@@ -66,21 +46,21 @@ type Deps struct {
 	computeHashFn func(input []byte) []byte
 }
 
-type challenges struct {
-	Deps
+type Challenges struct {
+	deps Deps
 }
 
-func (c *challenges) generateRandomBytes(size int) ([]byte, error) {
+func (c *Challenges) generateRandomBytes(size int) ([]byte, error) {
 	nonce := make([]byte, size)
-	_, err := c.CryptoRandReader(nonce)
+	_, err := c.deps.CryptoRandReader(nonce)
 	if err != nil {
 		return nil, err
 	}
 	return nonce, nil
 }
 
-func (c *challenges) GenerateNewChallenge(clientID string) (string, error) {
-	nowBytes := big.NewInt(c.Now().UnixNano()).Bytes()
+func (c *Challenges) GenerateNewChallenge(clientID string) (string, error) {
+	nowBytes := big.NewInt(c.deps.Now().UnixNano()).Bytes()
 	nonce, err := c.generateRandomBytes(16) // TODO: may need to make it smaller (or configurable)
 	if err != nil {
 		return "", err
@@ -92,7 +72,7 @@ func (c *challenges) GenerateNewChallenge(clientID string) (string, error) {
 	return hex.EncodeToString(challengeBytes), nil
 }
 
-func (c *challenges) VerifySolution(
+func (c *Challenges) VerifySolution(
 	complexity int,
 	challenge string,
 	solution string,
@@ -101,12 +81,17 @@ func (c *challenges) VerifySolution(
 	copy(hashInputBytes, []byte(challenge))
 	hashInputBytes[len(challenge)] = ':'
 	copy(hashInputBytes[len(challenge)+1:], []byte(solution))
-	actualHash := c.computeHashFn(hashInputBytes)
+	actualHash := c.deps.computeHashFn(hashInputBytes)
 	leadingZerosNum := countLeadingZeros(actualHash)
 	return leadingZerosNum >= complexity
 }
 
-func (c *challenges) SolveChallenge(ctx context.Context, complexity int, challenge string) (string, error) {
+// SolveChallenge returns a nonce that is a solution of the challenge.
+// It is used by client side only and
+// in real world scenario this may sit in it's own repo
+// but keeping it simple for now.
+// Returns error if the solution was not found.
+func (c *Challenges) SolveChallenge(ctx context.Context, complexity int, challenge string) (string, error) {
 	challengePartEnd := len(challenge)
 	hashInput := make([]byte, challengePartEnd+20) // we reserve 20 bytes for solution which should be enough
 	copy(hashInput, []byte(challenge))
@@ -115,7 +100,7 @@ func (c *challenges) SolveChallenge(ctx context.Context, complexity int, challen
 
 	deadline, hasDeadline := ctx.Deadline()
 	if !hasDeadline {
-		deadline = c.Deps.Now().Add(c.MaxSolveChallengeDuration)
+		deadline = c.deps.Now().Add(c.deps.MaxSolveChallengeDuration)
 	}
 
 	/*
@@ -131,13 +116,13 @@ func (c *challenges) SolveChallenge(ctx context.Context, complexity int, challen
 	for {
 		nonceStr := strconv.Itoa(nonce)
 		copy(hashInput[challengePartEnd+1:], []byte(nonceStr))
-		hash := c.computeHashFn(hashInput[:challengePartEnd+1+len(nonceStr)])
+		hash := c.deps.computeHashFn(hashInput[:challengePartEnd+1+len(nonceStr)])
 		leadingZeros := countLeadingZeros(hash)
 		if leadingZeros >= complexity {
 			return nonceStr, nil
 		}
 
-		if c.Deps.Now().UnixNano() >= deadline.UnixNano() {
+		if c.deps.Now().UnixNano() >= deadline.UnixNano() {
 			break
 		}
 
@@ -146,11 +131,11 @@ func (c *challenges) SolveChallenge(ctx context.Context, complexity int, challen
 	return "", errors.New("failed to solve challenge: deadline reached")
 }
 
-func NewChallenges(deps Deps) Challenges {
+func NewChallenges(deps Deps) *Challenges {
 	if deps.computeHashFn == nil {
 		deps.computeHashFn = computeHash
 	}
-	return &challenges{
-		Deps: deps,
+	return &Challenges{
+		deps: deps,
 	}
 }

@@ -7,7 +7,6 @@ import (
 	"math/rand/v2"
 	"testing"
 	"word-of-wisdom-go/internal/app/challenges"
-	"word-of-wisdom-go/internal/app/wow"
 	"word-of-wisdom-go/internal/diag"
 	"word-of-wisdom-go/internal/services/networking"
 
@@ -20,9 +19,9 @@ func TestCommands(t *testing.T) {
 	makeMockDeps := func(t *testing.T) CommandHandlerDeps {
 		return CommandHandlerDeps{
 			RootLogger:         diag.RootTestLogger(),
-			RequestRateMonitor: challenges.NewMockRequestRateMonitor(t),
-			Challenges:         challenges.NewMockChallenges(t),
-			Query:              wow.NewMockQuery(t),
+			RequestRateMonitor: newMockRequestRateMonitor(t),
+			Challenges:         newMockChallengesService(t),
+			Query:              newMockWowQuery(t),
 		}
 	}
 
@@ -67,13 +66,13 @@ func TestCommands(t *testing.T) {
 
 			ctrl := networking.NewMockSessionController()
 
-			mockMonitor, _ := deps.RequestRateMonitor.(*challenges.MockRequestRateMonitor)
+			mockMonitor, _ := deps.RequestRateMonitor.(*mockRequestRateMonitor)
 			mockMonitor.EXPECT().RecordRequest(ctx, ctrl.Session.ClientID()).Return(
 				challenges.RecordRequestResult{}, nil,
 			)
 
 			wantWow := faker.Sentence()
-			mockQuery, _ := deps.Query.(*wow.MockQuery)
+			mockQuery, _ := deps.Query.(*mockWowQuery)
 			mockQuery.EXPECT().GetNextWoW(ctx).Return(wantWow, nil)
 
 			handleErr := make(chan error)
@@ -92,7 +91,7 @@ func TestCommands(t *testing.T) {
 
 			ctrl := networking.NewMockSessionController()
 
-			mockMonitor, _ := deps.RequestRateMonitor.(*challenges.MockRequestRateMonitor)
+			mockMonitor, _ := deps.RequestRateMonitor.(*mockRequestRateMonitor)
 			monitorResult := challenges.RecordRequestResult{
 				ChallengeRequired:   true,
 				ChallengeComplexity: 5 + rand.IntN(10),
@@ -103,7 +102,7 @@ func TestCommands(t *testing.T) {
 
 			wantChallenge := faker.UUIDHyphenated()
 			wantSolution := faker.UUIDHyphenated()
-			mockChallenges, _ := deps.Challenges.(*challenges.MockChallenges)
+			mockChallenges, _ := deps.Challenges.(*mockChallengesService)
 			mockChallenges.EXPECT().GenerateNewChallenge(ctrl.Session.ClientID()).Return(wantChallenge, nil)
 			mockChallenges.EXPECT().VerifySolution(
 				monitorResult.ChallengeComplexity,
@@ -112,7 +111,7 @@ func TestCommands(t *testing.T) {
 			).Return(true)
 
 			wantWow := faker.Sentence()
-			mockQuery, _ := deps.Query.(*wow.MockQuery)
+			mockQuery, _ := deps.Query.(*mockWowQuery)
 			mockQuery.EXPECT().GetNextWoW(ctx).Return(wantWow, nil)
 
 			handleErr := make(chan error)
@@ -134,7 +133,7 @@ func TestCommands(t *testing.T) {
 
 			ctrl := networking.NewMockSessionController()
 
-			mockMonitor, _ := deps.RequestRateMonitor.(*challenges.MockRequestRateMonitor)
+			mockMonitor, _ := deps.RequestRateMonitor.(*mockRequestRateMonitor)
 			mockMonitor.EXPECT().RecordRequest(ctx, ctrl.Session.ClientID()).Return(
 				challenges.RecordRequestResult{}, errors.New(faker.Sentence()),
 			)
@@ -155,12 +154,12 @@ func TestCommands(t *testing.T) {
 
 			ctrl := networking.NewMockSessionController()
 
-			mockMonitor, _ := deps.RequestRateMonitor.(*challenges.MockRequestRateMonitor)
+			mockMonitor, _ := deps.RequestRateMonitor.(*mockRequestRateMonitor)
 			mockMonitor.EXPECT().RecordRequest(ctx, ctrl.Session.ClientID()).Return(
 				challenges.RecordRequestResult{}, nil,
 			)
 
-			mockQuery, _ := deps.Query.(*wow.MockQuery)
+			mockQuery, _ := deps.Query.(*mockWowQuery)
 			wantErr := errors.New(faker.Sentence())
 			mockQuery.EXPECT().GetNextWoW(ctx).Return("", wantErr)
 
@@ -179,13 +178,13 @@ func TestCommands(t *testing.T) {
 
 			ctrl := networking.NewMockSessionController()
 
-			mockMonitor, _ := deps.RequestRateMonitor.(*challenges.MockRequestRateMonitor)
+			mockMonitor, _ := deps.RequestRateMonitor.(*mockRequestRateMonitor)
 			mockMonitor.EXPECT().RecordRequest(ctx, ctrl.Session.ClientID()).Return(
 				challenges.RecordRequestResult{ChallengeRequired: true}, nil,
 			)
 
 			wantErr := errors.New(faker.Sentence())
-			mockChallenges, _ := deps.Challenges.(*challenges.MockChallenges)
+			mockChallenges, _ := deps.Challenges.(*mockChallengesService)
 			mockChallenges.EXPECT().GenerateNewChallenge(ctrl.Session.ClientID()).Return("", wantErr)
 
 			handleErr := make(chan error)
@@ -203,7 +202,7 @@ func TestCommands(t *testing.T) {
 
 			ctrl := networking.NewMockSessionController()
 
-			mockMonitor, _ := deps.RequestRateMonitor.(*challenges.MockRequestRateMonitor)
+			mockMonitor, _ := deps.RequestRateMonitor.(*mockRequestRateMonitor)
 			monitorResult := challenges.RecordRequestResult{
 				ChallengeRequired:   true,
 				ChallengeComplexity: 5 + rand.IntN(10),
@@ -212,7 +211,7 @@ func TestCommands(t *testing.T) {
 				monitorResult, nil,
 			)
 
-			mockChallenges, _ := deps.Challenges.(*challenges.MockChallenges)
+			mockChallenges, _ := deps.Challenges.(*mockChallengesService)
 			mockChallenges.EXPECT().GenerateNewChallenge(ctrl.Session.ClientID()).Return(faker.Word(), nil)
 			mockChallenges.EXPECT().VerifySolution(
 				mock.Anything,

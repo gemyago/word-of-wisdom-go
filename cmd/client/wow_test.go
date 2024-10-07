@@ -6,7 +6,6 @@ import (
 	"math/rand/v2"
 	"strconv"
 	"testing"
-	"word-of-wisdom-go/internal/app/challenges"
 	"word-of-wisdom-go/internal/diag"
 	"word-of-wisdom-go/internal/services/networking"
 
@@ -21,7 +20,7 @@ func TestWow(t *testing.T) {
 	newMockDeps := func(t *testing.T) WOWCommandDeps {
 		return WOWCommandDeps{
 			RootLogger: diag.RootTestLogger(),
-			Challenges: challenges.NewMockChallenges(t),
+			Challenges: newMockChallengesService(t),
 		}
 	}
 
@@ -80,7 +79,7 @@ func TestWow(t *testing.T) {
 		wantComplexity := rand.IntN(10)
 		wantSolution := faker.Sentence()
 
-		mockChallenges, _ := deps.Challenges.(*challenges.MockChallenges)
+		mockChallenges, _ := deps.Challenges.(*mockChallengesService)
 		mockChallenges.EXPECT().SolveChallenge(ctx, wantComplexity, wantChallenge).Return(wantSolution, nil)
 
 		go func() {
@@ -127,7 +126,7 @@ func TestWow(t *testing.T) {
 		ctrl := networking.NewMockSessionController()
 		cmdResCh := make(chan lo.Tuple2[string, error])
 
-		mockChallenges, _ := deps.Challenges.(*challenges.MockChallenges)
+		mockChallenges, _ := deps.Challenges.(*mockChallengesService)
 		mockChallenges.EXPECT().SolveChallenge(ctx, mock.Anything, mock.Anything).Return(faker.Sentence(), nil)
 
 		go func() {
@@ -175,7 +174,7 @@ func TestWow(t *testing.T) {
 		ctrl := networking.NewMockSessionController()
 		cmdResCh := make(chan lo.Tuple2[string, error])
 
-		mockChallenges, _ := deps.Challenges.(*challenges.MockChallenges)
+		mockChallenges, _ := deps.Challenges.(*mockChallengesService)
 		wantErr := errors.New(faker.Sentence())
 		mockChallenges.EXPECT().SolveChallenge(ctx, mock.Anything, mock.Anything).Return("", wantErr)
 

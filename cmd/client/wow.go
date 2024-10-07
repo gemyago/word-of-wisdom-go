@@ -8,7 +8,6 @@ import (
 	"strings"
 	"time"
 	"word-of-wisdom-go/internal/api/tcp/commands"
-	"word-of-wisdom-go/internal/app/challenges"
 	"word-of-wisdom-go/internal/services/networking"
 
 	"go.uber.org/dig"
@@ -26,13 +25,17 @@ func (f WOWCommandFunc) Process(ctx context.Context, session *networking.Session
 
 var _ WOWCommandFunc = WOWCommandFunc(nil)
 
+type challengesService interface {
+	SolveChallenge(ctx context.Context, complexity int, challenge string) (string, error)
+}
+
 type WOWCommandDeps struct {
 	dig.In
 
 	RootLogger *slog.Logger
 
 	// app layer
-	challenges.Challenges
+	Challenges challengesService
 }
 
 func newWOWCommand(deps WOWCommandDeps) WOWCommand {

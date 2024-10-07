@@ -1,19 +1,21 @@
 dir: "{{.InterfaceDirRelative}}"
 inpackage: true
 filename: "mock_{{.InterfaceNameSnake}}.go"
+mockname: "mock{{ .InterfaceName | camelcase }}"
 mock-build-tags: "!release"
 disable-version-string: true
 packages:
+  word-of-wisdom-go/cmd/client:
+    interfaces:
+      challengesService:
   word-of-wisdom-go/internal/api/tcp/server:
     interfaces:
-      CommandHandler:
-  word-of-wisdom-go/internal/app/challenges:
+      commandHandler:
+  word-of-wisdom-go/internal/api/tcp/commands:
     interfaces:
-      RequestRateMonitor:
-      Challenges:
-  word-of-wisdom-go/internal/app/wow:
-    interfaces:
-      Query:
+      requestRateMonitor:
+      challengesService:
+      wowQuery:
   log/slog:
     interfaces:
       Handler:
