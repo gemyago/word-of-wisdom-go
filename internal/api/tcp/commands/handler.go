@@ -15,11 +15,11 @@ import (
 
 // protocol related constants.
 const (
-	commandGetWow           = "GET_WOW"
-	wowResponsePrefix       = "WOW: "
+	CommandGetWow           = "GET_WOW"
+	WowResponsePrefix       = "WOW: "
 	challengeRequired       = "CHALLENGE_REQUIRED"
-	challengeRequiredPrefix = challengeRequired + ":"
-	challengeResultPrefix   = "CHALLENGE_RESULT:"
+	ChallengeRequiredPrefix = challengeRequired + ": "
+	ChallengeResultPrefix   = "CHALLENGE_RESULT: "
 
 	errBadCmdResponse            = "ERR: BAD_CMD"
 	errInternalError             = "ERR: INTERNAL_ERROR"
@@ -71,8 +71,8 @@ func (h *commandHandler) performChallengeVerification(
 
 	h.trace(ctx, "Requiring to solve challenge", slog.Int("complexity", monitoringResult.ChallengeComplexity))
 	challengeData := fmt.Sprintf(
-		"%s %s;%d",
-		challengeRequiredPrefix, challenge, monitoringResult.ChallengeComplexity)
+		"%s%s;%d",
+		ChallengeRequiredPrefix, challenge, monitoringResult.ChallengeComplexity)
 	if err = con.WriteLine(challengeData); err != nil {
 		return false, fmt.Errorf("failed to send challenge: %w", err)
 	}
@@ -80,7 +80,7 @@ func (h *commandHandler) performChallengeVerification(
 	if cmd, err = con.ReadLine(); err != nil {
 		return false, fmt.Errorf("failed to read challenge result: %w", err)
 	}
-	if strings.Index(cmd, challengeResultPrefix) != 0 {
+	if strings.Index(cmd, ChallengeResultPrefix) != 0 {
 		h.trace(ctx, "Got unexpected challenge result", slog.String("data", cmd))
 		return false, con.WriteLine(errUnexpectedChallengeResult)
 	}
@@ -88,7 +88,7 @@ func (h *commandHandler) performChallengeVerification(
 	if !h.Challenges.VerifySolution(
 		monitoringResult.ChallengeComplexity,
 		challenge,
-		strings.Trim(cmd[len(challengeResultPrefix):], " "),
+		strings.Trim(cmd[len(ChallengeResultPrefix):], " "),
 	) {
 		h.trace(ctx, "Challenge verification failed", slog.String("data", cmd))
 		return false, con.WriteLine(errChallengeVerificationFail)
@@ -108,7 +108,7 @@ func (h *commandHandler) Handle(ctx context.Context, con networking.Session) err
 	// - the HandleCommands will read the command from the connection, and forward
 	//   the processing to particular command implementation
 	// Keeping it simple for now since we need just a single command.
-	if cmd != commandGetWow {
+	if cmd != CommandGetWow {
 		h.trace(ctx, "Got bad command", slog.String("cmd", cmd))
 		return con.WriteLine(errBadCmdResponse)
 	}
@@ -140,5 +140,5 @@ func (h *commandHandler) Handle(ctx context.Context, con networking.Session) err
 	}
 
 	h.trace(ctx, "Responding with WOW")
-	return con.WriteLine(wowResponsePrefix + wow)
+	return con.WriteLine(WowResponsePrefix + wow)
 }
