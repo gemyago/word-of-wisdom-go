@@ -34,7 +34,7 @@ $(go-test-coverage):
 
 .PHONY: $(cover_profile)
 $(cover_profile): $(cover_dir)
-	TZ=US/Alaska go test -timeout 30s -shuffle=on -failfast -coverpkg=./pkg/...,./cmd/... -coverprofile=$(cover_profile) -covermode=atomic ./...
+	TZ=US/Alaska go test -shuffle=on -failfast -coverpkg=./internal/...,./cmd/... -coverprofile=$(cover_profile) -covermode=atomic ./...
 
 test: $(go-test-coverage) $(cover_profile)
 	go tool cover -html=$(cover_profile) -o $(cover_html)
@@ -45,12 +45,15 @@ test: $(go-test-coverage) $(cover_profile)
 docker-images:
 	make -C docker clean-images .local-client-image .local-server-image
 
-$(cover_dir)/coverage.%.blob-sha:
-	@gh api \
+$(cover_dir)/repo-name-with-owner.txt:
+	gh repo view --json nameWithOwner -q .nameWithOwner > $@
+
+$(cover_dir)/coverage.%.blob-sha: $(cover_dir)/repo-name-with-owner.txt
+	gh api \
 		--method GET \
 		-H "Accept: application/vnd.github+json" \
 		-H "X-GitHub-Api-Version: 2022-11-28" \
-		/repos/gemyago/word-of-wisdom-go/contents/coverage/golang-coverage.$*?ref=test-artifacts \
+		/repos/$(shell cat $(cover_dir)/repo-name-with-owner.txt)/contents/coverage/golang-coverage.$*?ref=test-artifacts \
 		| jq -jr '.sha' > $@
 
 $(cover_dir)/coverage.%.gh-cli-body.json: $(cover_dir)/coverage.% $(cover_dir)/coverage.%.blob-sha
@@ -64,7 +67,6 @@ $(cover_dir)/coverage.%.gh-cli-body.json: $(cover_dir)/coverage.% $(cover_dir)/c
 	@base64 -i $< | tr -d '\n' >> $@
 	@printf "\"\n}">> $@
 
-
 # Orphan branch will need to be created prior to running this
 # git checkout --orphan test-artifacts
 # git rm -rf .
@@ -74,16 +76,16 @@ $(cover_dir)/coverage.%.gh-cli-body.json: $(cover_dir)/coverage.% $(cover_dir)/c
 # git commit -m 'init'
 # git push origin test-artifacts
 .PHONY: push-test-artifacts
-push-test-artifacts: $(cover_dir)/coverage.svg.gh-cli-body.json $(cover_dir)/coverage.html.gh-cli-body.json
+push-test-artifacts: $(cover_dir)/coverage.svg.gh-cli-body.json $(cover_dir)/coverage.html.gh-cli-body.json $(cover_dir)/repo-name-with-owner.txt
 	@gh api \
 		--method PUT \
 		-H "Accept: application/vnd.github+json" \
 		-H "X-GitHub-Api-Version: 2022-11-28" \
-		/repos/gemyago/word-of-wisdom-go/contents/coverage/golang-coverage.svg \
+		/repos/$(shell cat $(cover_dir)/repo-name-with-owner.txt)/contents/coverage/golang-coverage.svg \
 		--input $(cover_dir)/coverage.svg.gh-cli-body.json
 	@gh api \
 		--method PUT \
 		-H "Accept: application/vnd.github+json" \
 		-H "X-GitHub-Api-Version: 2022-11-28" \
-		/repos/gemyago/word-of-wisdom-go/contents/coverage/golang-coverage.html \
+		/repos/$(shell cat $(cover_dir)/repo-name-with-owner.txt)/contents/coverage/golang-coverage.html \
 		--input $(cover_dir)/coverage.html.gh-cli-body.json
