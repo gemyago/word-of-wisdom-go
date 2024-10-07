@@ -36,8 +36,8 @@ func (s *session) WriteLine(data string) error {
 
 func NewSession(clientID string, stream io.ReadWriter) Session {
 	return &session{
-		clientID,
-		stream,
-		bufio.NewReader(stream),
+		clientID: clientID,
+		stream:   stream,
+		reader:   bufio.NewReader(stream),
 	}
 }
