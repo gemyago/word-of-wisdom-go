@@ -32,16 +32,16 @@ func TestCommands(t *testing.T) {
 			deps := makeMockDeps(t)
 			h := NewHandler(deps)
 
-			session := networking.NewMockSessionController()
+			ctrl := networking.NewMockSessionController()
 			wantErr := errors.New(faker.Sentence())
 
 			handleErr := make(chan error)
 			go func() {
-				handleErr <- h.Handle(ctx, session.Session)
+				handleErr <- h.Handle(ctx, ctrl.Session)
 			}()
 
-			session.MockSetNextError(wantErr)
-			session.MockSendLine(faker.Word())
+			ctrl.MockSetNextError(wantErr)
+			ctrl.MockSendLine(faker.Word())
 			assert.ErrorIs(t, <-handleErr, wantErr)
 		})
 		t.Run("should fail if unexpected command", func(t *testing.T) {
@@ -49,14 +49,14 @@ func TestCommands(t *testing.T) {
 			deps := makeMockDeps(t)
 			h := NewHandler(deps)
 
-			session := networking.NewMockSessionController()
+			ctrl := networking.NewMockSessionController()
 
 			handleErr := make(chan error)
 			go func() {
-				handleErr <- h.Handle(ctx, session.Session)
+				handleErr <- h.Handle(ctx, ctrl.Session)
 			}()
 
-			result := session.MockSendLineAndWaitResult(faker.Word())
+			result := ctrl.MockSendLineAndWaitResult(faker.Word())
 			assert.Equal(t, "ERR: BAD_CMD", result)
 			assert.NoError(t, <-handleErr)
 		})

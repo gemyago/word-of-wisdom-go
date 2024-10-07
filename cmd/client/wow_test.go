@@ -30,16 +30,16 @@ func TestWow(t *testing.T) {
 		cmd := newWOWCommand(deps)
 
 		ctx := context.Background()
-		mockSession := networking.NewMockSessionController()
+		ctrl := networking.NewMockSessionController()
 		cmdResCh := make(chan lo.Tuple2[string, error])
 		wantWow := faker.Sentence()
 		go func() {
-			res, err := cmd.Process(ctx, mockSession)
+			res, err := cmd.Process(ctx, ctrl.Session)
 			cmdResCh <- lo.Tuple2[string, error]{A: res, B: err}
 		}()
-		gotCmd := mockSession.MockWaitResult()
+		gotCmd := ctrl.MockWaitResult()
 		assert.Equal(t, "GET_WOW", gotCmd)
-		mockSession.MockSendLine("WOW: " + wantWow)
+		ctrl.MockSendLine("WOW: " + wantWow)
 
 		cmdRes := <-cmdResCh
 		require.NoError(t, cmdRes.B)
@@ -51,18 +51,18 @@ func TestWow(t *testing.T) {
 		cmd := newWOWCommand(deps)
 
 		ctx := context.Background()
-		mockSession := networking.NewMockSessionController()
+		ctrl := networking.NewMockSessionController()
 		cmdResCh := make(chan lo.Tuple2[string, error])
 		wantWow := faker.Sentence()
 		wantErr := errors.New(faker.Sentence())
-		mockSession.MockSetNextError(wantErr)
+		ctrl.MockSetNextError(wantErr)
 		go func() {
-			res, err := cmd.Process(ctx, mockSession)
+			res, err := cmd.Process(ctx, ctrl.Session)
 			cmdResCh <- lo.Tuple2[string, error]{A: res, B: err}
 		}()
-		gotCmd := mockSession.MockWaitResult()
+		gotCmd := ctrl.MockWaitResult()
 		assert.Equal(t, "GET_WOW", gotCmd)
-		mockSession.MockSendLine("WOW: " + wantWow)
+		ctrl.MockSendLine("WOW: " + wantWow)
 
 		cmdRes := <-cmdResCh
 		assert.ErrorIs(t, cmdRes.B, wantErr)
@@ -73,7 +73,7 @@ func TestWow(t *testing.T) {
 		cmd := newWOWCommand(deps)
 
 		ctx := context.Background()
-		mockSession := networking.NewMockSessionController()
+		ctrl := networking.NewMockSessionController()
 		cmdResCh := make(chan lo.Tuple2[string, error])
 		wantWow := faker.Sentence()
 		wantChallenge := faker.Sentence()
@@ -84,16 +84,16 @@ func TestWow(t *testing.T) {
 		mockChallenges.EXPECT().SolveChallenge(ctx, wantComplexity, wantChallenge).Return(wantSolution, nil)
 
 		go func() {
-			res, err := cmd.Process(ctx, mockSession)
+			res, err := cmd.Process(ctx, ctrl.Session)
 			cmdResCh <- lo.Tuple2[string, error]{A: res, B: err}
 		}()
-		gotCmd := mockSession.MockWaitResult()
+		gotCmd := ctrl.MockWaitResult()
 		assert.Equal(t, "GET_WOW", gotCmd)
-		gotSolutionResult := mockSession.MockSendLineAndWaitResult(
+		gotSolutionResult := ctrl.MockSendLineAndWaitResult(
 			"CHALLENGE_REQUIRED: " + wantChallenge + ";" + strconv.Itoa(wantComplexity),
 		)
 		assert.Equal(t, "CHALLENGE_RESULT: "+wantSolution, gotSolutionResult)
-		mockSession.MockSendLine("WOW: " + wantWow)
+		ctrl.MockSendLine("WOW: " + wantWow)
 
 		cmdRes := <-cmdResCh
 		require.NoError(t, cmdRes.B)
@@ -105,16 +105,16 @@ func TestWow(t *testing.T) {
 		cmd := newWOWCommand(deps)
 
 		ctx := context.Background()
-		mockSession := networking.NewMockSessionController()
+		ctrl := networking.NewMockSessionController()
 		cmdResCh := make(chan lo.Tuple2[string, error])
 
 		go func() {
-			res, err := cmd.Process(ctx, mockSession)
+			res, err := cmd.Process(ctx, ctrl.Session)
 			cmdResCh <- lo.Tuple2[string, error]{A: res, B: err}
 		}()
-		gotCmd := mockSession.MockWaitResult()
+		gotCmd := ctrl.MockWaitResult()
 		assert.Equal(t, "GET_WOW", gotCmd)
-		mockSession.MockSendLine(faker.Word())
+		ctrl.MockSendLine(faker.Word())
 		cmdRes := <-cmdResCh
 		assert.ErrorContains(t, cmdRes.B, "unexpected challenge requirement")
 	})
@@ -124,22 +124,22 @@ func TestWow(t *testing.T) {
 		cmd := newWOWCommand(deps)
 
 		ctx := context.Background()
-		mockSession := networking.NewMockSessionController()
+		ctrl := networking.NewMockSessionController()
 		cmdResCh := make(chan lo.Tuple2[string, error])
 
 		mockChallenges, _ := deps.Challenges.(*challenges.MockChallenges)
 		mockChallenges.EXPECT().SolveChallenge(ctx, mock.Anything, mock.Anything).Return(faker.Sentence(), nil)
 
 		go func() {
-			res, err := cmd.Process(ctx, mockSession)
+			res, err := cmd.Process(ctx, ctrl.Session)
 			cmdResCh <- lo.Tuple2[string, error]{A: res, B: err}
 		}()
-		gotCmd := mockSession.MockWaitResult()
+		gotCmd := ctrl.MockWaitResult()
 		assert.Equal(t, "GET_WOW", gotCmd)
-		mockSession.MockSendLineAndWaitResult(
+		ctrl.MockSendLineAndWaitResult(
 			"CHALLENGE_REQUIRED: " + faker.Word() + ";" + strconv.Itoa(rand.Int()),
 		)
-		mockSession.MockSendLine(faker.Word())
+		ctrl.MockSendLine(faker.Word())
 
 		cmdRes := <-cmdResCh
 		assert.ErrorContains(t, cmdRes.B, "got unexpected WOW response")
@@ -150,16 +150,16 @@ func TestWow(t *testing.T) {
 		cmd := newWOWCommand(deps)
 
 		ctx := context.Background()
-		mockSession := networking.NewMockSessionController()
+		ctrl := networking.NewMockSessionController()
 		cmdResCh := make(chan lo.Tuple2[string, error])
 
 		go func() {
-			res, err := cmd.Process(ctx, mockSession)
+			res, err := cmd.Process(ctx, ctrl.Session)
 			cmdResCh <- lo.Tuple2[string, error]{A: res, B: err}
 		}()
-		gotCmd := mockSession.MockWaitResult()
+		gotCmd := ctrl.MockWaitResult()
 		assert.Equal(t, "GET_WOW", gotCmd)
-		mockSession.MockSendLine(
+		ctrl.MockSendLine(
 			"CHALLENGE_REQUIRED: " + faker.Word() + ";" + faker.Word(),
 		)
 
@@ -172,7 +172,7 @@ func TestWow(t *testing.T) {
 		cmd := newWOWCommand(deps)
 
 		ctx := context.Background()
-		mockSession := networking.NewMockSessionController()
+		ctrl := networking.NewMockSessionController()
 		cmdResCh := make(chan lo.Tuple2[string, error])
 
 		mockChallenges, _ := deps.Challenges.(*challenges.MockChallenges)
@@ -180,12 +180,12 @@ func TestWow(t *testing.T) {
 		mockChallenges.EXPECT().SolveChallenge(ctx, mock.Anything, mock.Anything).Return("", wantErr)
 
 		go func() {
-			res, err := cmd.Process(ctx, mockSession)
+			res, err := cmd.Process(ctx, ctrl.Session)
 			cmdResCh <- lo.Tuple2[string, error]{A: res, B: err}
 		}()
-		gotCmd := mockSession.MockWaitResult()
+		gotCmd := ctrl.MockWaitResult()
 		assert.Equal(t, "GET_WOW", gotCmd)
-		mockSession.MockSendLine(
+		ctrl.MockSendLine(
 			"CHALLENGE_REQUIRED: " + faker.Word() + ";" + strconv.Itoa(rand.Int()),
 		)
 

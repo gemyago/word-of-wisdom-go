@@ -3,6 +3,8 @@
 package networking
 
 import (
+	"strings"
+
 	"github.com/go-faker/faker/v4"
 )
 
@@ -23,7 +25,7 @@ func (m *mockSessionStream) Write(p []byte) (int, error) {
 	go func() {
 		m.writeBuffer <- line
 	}()
-	return len(p), nil
+	return len(p), m.nextError
 }
 
 type MockSessionController struct {
@@ -33,19 +35,20 @@ type MockSessionController struct {
 
 func (m *MockSessionController) MockSendLine(line string) {
 	go func() {
-		m.stream.readBuffer <- line
+		m.stream.readBuffer <- line + "\n"
 	}()
 }
 
 func (m *MockSessionController) MockSendLineAndWaitResult(line string) string {
 	go func() {
-		m.stream.readBuffer <- line
+		m.stream.readBuffer <- line + "\n"
 	}()
-	return <-m.stream.writeBuffer
+	return m.MockWaitResult()
 }
 
 func (m *MockSessionController) MockWaitResult() string {
-	return <-m.stream.writeBuffer
+	result := <-m.stream.writeBuffer
+	return strings.TrimSuffix(result, "\n")
 }
 
 func (m *MockSessionController) MockSetNextError(err error) {
