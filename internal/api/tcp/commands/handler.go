@@ -100,7 +100,7 @@ func (h *CommandHandler) performChallengeVerification(
 func (h *CommandHandler) Handle(ctx context.Context, session *services.SessionIO) error {
 	cmd, err := session.ReadLine()
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to read command: %w", err)
 	}
 
 	// If we need to extend it to support multiple commands
