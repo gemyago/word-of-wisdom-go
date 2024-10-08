@@ -29,7 +29,6 @@ func (p configValueProvider) asInt64() di.ConstructorWithOpts {
 	return di.ProvideValue(p.cfg.GetInt64(p.configPath), dig.Name(p.diPath))
 }
 
-/*
 func (p configValueProvider) asString() di.ConstructorWithOpts {
 	return di.ProvideValue(p.cfg.GetString(p.configPath), dig.Name(p.diPath))
 }
@@ -37,7 +36,6 @@ func (p configValueProvider) asString() di.ConstructorWithOpts {
 func (p configValueProvider) asBool() di.ConstructorWithOpts {
 	return di.ProvideValue(p.cfg.GetBool(p.configPath), dig.Name(p.diPath))
 }
-*/
 
 func (p configValueProvider) asDuration() di.ConstructorWithOpts {
 	return di.ProvideValue(p.cfg.GetDuration(p.configPath), dig.Name(p.diPath))
