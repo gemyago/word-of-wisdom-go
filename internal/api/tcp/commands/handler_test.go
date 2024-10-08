@@ -19,9 +19,9 @@ func TestCommands(t *testing.T) {
 	makeMockDeps := func(t *testing.T) CommandHandlerDeps {
 		return CommandHandlerDeps{
 			RootLogger:         diag.RootTestLogger(),
-			RequestRateMonitor: newMockRequestRateMonitor(t),
-			Challenges:         newMockChallengesService(t),
-			Query:              newMockWowQuery(t),
+			RequestRateMonitor: app.NewMockRequestRateMonitor(t),
+			Challenges:         app.NewMockChallenges(t),
+			Query:              app.NewMockWowQuery(t),
 		}
 	}
 
@@ -66,13 +66,13 @@ func TestCommands(t *testing.T) {
 
 			ctrl := services.NewMockSessionIOController()
 
-			mockMonitor, _ := deps.RequestRateMonitor.(*mockRequestRateMonitor)
+			mockMonitor, _ := deps.RequestRateMonitor.(*app.MockRequestRateMonitor)
 			mockMonitor.EXPECT().RecordRequest(ctx, ctrl.Session.ClientID()).Return(
 				app.RecordRequestResult{}, nil,
 			)
 
 			wantWow := faker.Sentence()
-			mockQuery, _ := deps.Query.(*mockWowQuery)
+			mockQuery, _ := deps.Query.(*app.MockWowQuery)
 			mockQuery.EXPECT().GetNextWoW(ctx).Return(wantWow, nil)
 
 			handleErr := make(chan error)
@@ -91,7 +91,7 @@ func TestCommands(t *testing.T) {
 
 			ctrl := services.NewMockSessionIOController()
 
-			mockMonitor, _ := deps.RequestRateMonitor.(*mockRequestRateMonitor)
+			mockMonitor, _ := deps.RequestRateMonitor.(*app.MockRequestRateMonitor)
 			monitorResult := app.RecordRequestResult{
 				ChallengeRequired:   true,
 				ChallengeComplexity: 5 + rand.IntN(10),
@@ -102,7 +102,7 @@ func TestCommands(t *testing.T) {
 
 			wantChallenge := faker.UUIDHyphenated()
 			wantSolution := faker.UUIDHyphenated()
-			mockChallenges, _ := deps.Challenges.(*mockChallengesService)
+			mockChallenges, _ := deps.Challenges.(*app.MockChallenges)
 			mockChallenges.EXPECT().GenerateNewChallenge(ctrl.Session.ClientID()).Return(wantChallenge, nil)
 			mockChallenges.EXPECT().VerifySolution(
 				monitorResult.ChallengeComplexity,
@@ -111,7 +111,7 @@ func TestCommands(t *testing.T) {
 			).Return(true)
 
 			wantWow := faker.Sentence()
-			mockQuery, _ := deps.Query.(*mockWowQuery)
+			mockQuery, _ := deps.Query.(*app.MockWowQuery)
 			mockQuery.EXPECT().GetNextWoW(ctx).Return(wantWow, nil)
 
 			handleErr := make(chan error)
@@ -133,7 +133,7 @@ func TestCommands(t *testing.T) {
 
 			ctrl := services.NewMockSessionIOController()
 
-			mockMonitor, _ := deps.RequestRateMonitor.(*mockRequestRateMonitor)
+			mockMonitor, _ := deps.RequestRateMonitor.(*app.MockRequestRateMonitor)
 			mockMonitor.EXPECT().RecordRequest(ctx, ctrl.Session.ClientID()).Return(
 				app.RecordRequestResult{}, errors.New(faker.Sentence()),
 			)
@@ -154,12 +154,12 @@ func TestCommands(t *testing.T) {
 
 			ctrl := services.NewMockSessionIOController()
 
-			mockMonitor, _ := deps.RequestRateMonitor.(*mockRequestRateMonitor)
+			mockMonitor, _ := deps.RequestRateMonitor.(*app.MockRequestRateMonitor)
 			mockMonitor.EXPECT().RecordRequest(ctx, ctrl.Session.ClientID()).Return(
 				app.RecordRequestResult{}, nil,
 			)
 
-			mockQuery, _ := deps.Query.(*mockWowQuery)
+			mockQuery, _ := deps.Query.(*app.MockWowQuery)
 			wantErr := errors.New(faker.Sentence())
 			mockQuery.EXPECT().GetNextWoW(ctx).Return("", wantErr)
 
@@ -178,13 +178,13 @@ func TestCommands(t *testing.T) {
 
 			ctrl := services.NewMockSessionIOController()
 
-			mockMonitor, _ := deps.RequestRateMonitor.(*mockRequestRateMonitor)
+			mockMonitor, _ := deps.RequestRateMonitor.(*app.MockRequestRateMonitor)
 			mockMonitor.EXPECT().RecordRequest(ctx, ctrl.Session.ClientID()).Return(
 				app.RecordRequestResult{ChallengeRequired: true}, nil,
 			)
 
 			wantErr := errors.New(faker.Sentence())
-			mockChallenges, _ := deps.Challenges.(*mockChallengesService)
+			mockChallenges, _ := deps.Challenges.(*app.MockChallenges)
 			mockChallenges.EXPECT().GenerateNewChallenge(ctrl.Session.ClientID()).Return("", wantErr)
 
 			handleErr := make(chan error)
@@ -202,7 +202,7 @@ func TestCommands(t *testing.T) {
 
 			ctrl := services.NewMockSessionIOController()
 
-			mockMonitor, _ := deps.RequestRateMonitor.(*mockRequestRateMonitor)
+			mockMonitor, _ := deps.RequestRateMonitor.(*app.MockRequestRateMonitor)
 			monitorResult := app.RecordRequestResult{
 				ChallengeRequired:   true,
 				ChallengeComplexity: 5 + rand.IntN(10),
@@ -211,7 +211,7 @@ func TestCommands(t *testing.T) {
 				monitorResult, nil,
 			)
 
-			mockChallenges, _ := deps.Challenges.(*mockChallengesService)
+			mockChallenges, _ := deps.Challenges.(*app.MockChallenges)
 			mockChallenges.EXPECT().GenerateNewChallenge(ctrl.Session.ClientID()).Return(faker.Word(), nil)
 			mockChallenges.EXPECT().VerifySolution(
 				mock.Anything,

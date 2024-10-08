@@ -5,17 +5,14 @@ mockname: "mock{{ .InterfaceName | camelcase }}"
 mock-build-tags: "!release"
 disable-version-string: true
 packages:
-  word-of-wisdom-go/cmd/client:
+  word-of-wisdom-go/internal/app:
+    config:
+      filename: "{{.InterfaceNameSnake}}.go"
+      mockname: "{{ .InterfaceName | camelcase }}"
     interfaces:
-      challengesService:
-  word-of-wisdom-go/internal/api/tcp/server:
-    interfaces:
-      commandHandler:
-  word-of-wisdom-go/internal/api/tcp/commands:
-    interfaces:
-      requestRateMonitor:
-      challengesService:
-      wowQuery:
+      mockRequestRateMonitor:
+      mockChallenges:
+      mockWowQuery:
   log/slog:
     interfaces:
       Handler:
