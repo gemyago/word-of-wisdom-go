@@ -5,8 +5,8 @@ import (
 	"context"
 	"errors"
 	"testing"
-	"word-of-wisdom-go/pkg/diag"
-	"word-of-wisdom-go/pkg/services/networking"
+	"word-of-wisdom-go/internal/diag"
+	"word-of-wisdom-go/internal/services"
 
 	"github.com/go-faker/faker/v4"
 	"github.com/stretchr/testify/assert"
@@ -17,20 +17,20 @@ func TestClient(t *testing.T) {
 	t.Run("runWOWCommand", func(t *testing.T) {
 		t.Run("should process wow command", func(t *testing.T) {
 			ctx := context.Background()
-			mockSession := networking.NewMockSession()
+			ctrl := services.NewMockSessionIOController()
 			wantWow := faker.Sentence()
 			var output bytes.Buffer
 			wantAddress := faker.Word()
 			params := runWOWCommandParams{
 				serverAddress: wantAddress,
 				RootLogger:    diag.RootTestLogger(),
-				SessionDialer: sessionDialerFunc(func(network, address string) (networking.Session, func() error, error) {
+				SessionDialer: sessionDialerFunc(func(network, address string) (*services.SessionIO, func() error, error) {
 					assert.Equal(t, "tcp", network)
 					assert.Equal(t, wantAddress, address)
-					return mockSession, func() error { return nil }, nil
+					return ctrl.Session, func() error { return nil }, nil
 				}),
-				WOWCommand: WOWCommandFunc(func(_ context.Context, session networking.Session) (string, error) {
-					assert.Equal(t, mockSession, session)
+				WOWCommand: WOWCommandFunc(func(_ context.Context, session *services.SessionIO) (string, error) {
+					assert.Equal(t, ctrl.Session, session)
 					return wantWow, nil
 				}),
 				output: &output,
@@ -45,7 +45,7 @@ func TestClient(t *testing.T) {
 			params := runWOWCommandParams{
 				serverAddress: wantAddress,
 				RootLogger:    diag.RootTestLogger(),
-				SessionDialer: sessionDialerFunc(func(_, _ string) (networking.Session, func() error, error) {
+				SessionDialer: sessionDialerFunc(func(_, _ string) (*services.SessionIO, func() error, error) {
 					return nil, nil, wantDialErr
 				}),
 			}
@@ -57,10 +57,10 @@ func TestClient(t *testing.T) {
 			params := runWOWCommandParams{
 				serverAddress: faker.Word(),
 				RootLogger:    diag.RootTestLogger(),
-				SessionDialer: sessionDialerFunc(func(_, _ string) (networking.Session, func() error, error) {
-					return networking.NewMockSession(), func() error { return nil }, nil
+				SessionDialer: sessionDialerFunc(func(_, _ string) (*services.SessionIO, func() error, error) {
+					return services.NewMockSessionIOController().Session, func() error { return nil }, nil
 				}),
-				WOWCommand: WOWCommandFunc(func(_ context.Context, _ networking.Session) (string, error) {
+				WOWCommand: WOWCommandFunc(func(_ context.Context, _ *services.SessionIO) (string, error) {
 					return "", wantErr
 				}),
 			}
@@ -71,10 +71,10 @@ func TestClient(t *testing.T) {
 			params := runWOWCommandParams{
 				serverAddress: faker.Word(),
 				RootLogger:    diag.RootTestLogger(),
-				SessionDialer: sessionDialerFunc(func(_, _ string) (networking.Session, func() error, error) {
-					return networking.NewMockSession(), func() error { return errors.New(faker.Sentence()) }, nil
+				SessionDialer: sessionDialerFunc(func(_, _ string) (*services.SessionIO, func() error, error) {
+					return services.NewMockSessionIOController().Session, func() error { return errors.New(faker.Sentence()) }, nil
 				}),
-				WOWCommand: WOWCommandFunc(func(_ context.Context, _ networking.Session) (string, error) {
+				WOWCommand: WOWCommandFunc(func(_ context.Context, _ *services.SessionIO) (string, error) {
 					return faker.Sentence(), nil
 				}),
 				output: &bytes.Buffer{},

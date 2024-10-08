@@ -5,8 +5,8 @@ import (
 	"log/slog"
 	"os/signal"
 	"time"
-	"word-of-wisdom-go/pkg/api/tcp/server"
-	"word-of-wisdom-go/pkg/diag"
+	"word-of-wisdom-go/internal/api/tcp/server"
+	"word-of-wisdom-go/internal/diag"
 
 	"github.com/spf13/cobra"
 	"go.uber.org/dig"

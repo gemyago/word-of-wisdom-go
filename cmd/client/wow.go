@@ -7,23 +7,27 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"word-of-wisdom-go/pkg/app/challenges"
-	"word-of-wisdom-go/pkg/services/networking"
+	"word-of-wisdom-go/internal/api/tcp/commands"
+	"word-of-wisdom-go/internal/services"
 
 	"go.uber.org/dig"
 )
 
 type WOWCommand interface {
-	Process(ctx context.Context, session networking.Session) (string, error)
+	Process(ctx context.Context, session *services.SessionIO) (string, error)
 }
 
-type WOWCommandFunc func(ctx context.Context, session networking.Session) (string, error)
+type WOWCommandFunc func(ctx context.Context, session *services.SessionIO) (string, error)
 
-func (f WOWCommandFunc) Process(ctx context.Context, session networking.Session) (string, error) {
+func (f WOWCommandFunc) Process(ctx context.Context, session *services.SessionIO) (string, error) {
 	return f(ctx, session)
 }
 
 var _ WOWCommandFunc = WOWCommandFunc(nil)
+
+type challengesService interface {
+	SolveChallenge(ctx context.Context, complexity int, challenge string) (string, error)
+}
 
 type WOWCommandDeps struct {
 	dig.In
@@ -31,15 +35,15 @@ type WOWCommandDeps struct {
 	RootLogger *slog.Logger
 
 	// app layer
-	challenges.Challenges
+	Challenges challengesService
 }
 
 func newWOWCommand(deps WOWCommandDeps) WOWCommand {
 	logger := deps.RootLogger.WithGroup("client")
-	return WOWCommandFunc(func(ctx context.Context, session networking.Session) (string, error) {
+	return WOWCommandFunc(func(ctx context.Context, session *services.SessionIO) (string, error) {
 		logger.DebugContext(ctx, "Sending GET_WOW request")
 
-		if err := session.WriteLine("GET_WOW"); err != nil {
+		if err := session.WriteLine(commands.CommandGetWow); err != nil {
 			return "", fmt.Errorf("failed to write to the server: %w", err)
 		}
 
@@ -50,18 +54,18 @@ func newWOWCommand(deps WOWCommandDeps) WOWCommand {
 
 		logger.DebugContext(ctx, "Got response", slog.String("data", line))
 
-		if strings.Index(line, "WOW:") == 0 {
+		if strings.Index(line, commands.WowResponsePrefix) == 0 {
 			logger.DebugContext(ctx, "Got WOW response. No challenge required")
 			return strings.Trim(line[4:], " "), nil
 		}
 
-		if strings.Index(line, "CHALLENGE_REQUIRED:") != 0 {
+		if strings.Index(line, commands.ChallengeRequiredPrefix) != 0 {
 			return "", fmt.Errorf("got unexpected challenge requirement response %s: %w", line, err)
 		}
 
 		separatorIndex := strings.Index(line, ";")
 
-		challenge := strings.Trim(line[len("CHALLENGE_REQUIRED:"):separatorIndex], " ")
+		challenge := strings.Trim(line[len(commands.ChallengeRequiredPrefix):separatorIndex], " ")
 		complexity, err := strconv.Atoi(line[separatorIndex+1:])
 		if err != nil {
 			return "", err
@@ -79,7 +83,7 @@ func newWOWCommand(deps WOWCommandDeps) WOWCommand {
 			slog.Duration("solutionDuration", time.Since(solveStartedAt)),
 			slog.String("solution", solution),
 		)
-		if err = session.WriteLine("CHALLENGE_RESULT: " + solution); err != nil {
+		if err = session.WriteLine(commands.ChallengeResultPrefix + solution); err != nil {
 			return "", fmt.Errorf("failed to write to the server: %w", err)
 		}
 
@@ -90,7 +94,7 @@ func newWOWCommand(deps WOWCommandDeps) WOWCommand {
 
 		logger.DebugContext(ctx, "Got response", slog.String("data", line))
 
-		if strings.Index(line, "WOW:") == 0 {
+		if strings.Index(line, commands.WowResponsePrefix) == 0 {
 			return strings.Trim(line[4:], " "), nil
 		}
 

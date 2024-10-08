@@ -4,14 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"word-of-wisdom-go/config"
-	"word-of-wisdom-go/pkg/api/tcp/commands"
-	"word-of-wisdom-go/pkg/api/tcp/server"
-	"word-of-wisdom-go/pkg/app/challenges"
-	"word-of-wisdom-go/pkg/app/wow"
-	"word-of-wisdom-go/pkg/di"
-	"word-of-wisdom-go/pkg/diag"
-	"word-of-wisdom-go/pkg/services"
+	"word-of-wisdom-go/internal/api/tcp/commands"
+	"word-of-wisdom-go/internal/api/tcp/server"
+	"word-of-wisdom-go/internal/app"
+	"word-of-wisdom-go/internal/config"
+	"word-of-wisdom-go/internal/di"
+	"word-of-wisdom-go/internal/diag"
+	"word-of-wisdom-go/internal/services"
 
 	"github.com/spf13/cobra"
 	"go.uber.org/dig"
@@ -72,16 +71,15 @@ func newRootCmd(container *dig.Container) *cobra.Command {
 			config.Provide(container, cfg),
 			di.ProvideAll(container,
 				di.ProvideValue(rootLogger),
-
-				// api layer
-				commands.NewHandler,
-				server.NewListener,
-
-				// app layer
-				challenges.NewChallenges,
-				challenges.NewRequestRateMonitor,
-				wow.NewQuery,
 			),
+
+			// api layer
+			commands.Register(container),
+			server.Register(container),
+
+			// app layer
+			app.Register(container),
+
 			// services
 			services.Register(container),
 		)

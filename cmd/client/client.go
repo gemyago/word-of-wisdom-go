@@ -7,7 +7,7 @@ import (
 	"log/slog"
 	"os"
 	"time"
-	"word-of-wisdom-go/pkg/diag"
+	"word-of-wisdom-go/internal/diag"
 
 	"github.com/spf13/cobra"
 	"go.uber.org/dig"
@@ -30,6 +30,15 @@ type runWOWCommandParams struct {
 	output        io.Writer
 }
 
+func writeLines(w io.Writer, lines ...string) error {
+	for _, line := range lines {
+		if _, err := fmt.Fprintln(w, line); err != nil {
+			return fmt.Errorf("failed to write line: %w", err)
+		}
+	}
+	return nil
+}
+
 func runWOWCommand(ctx context.Context, params runWOWCommandParams) error {
 	ctx, cancel := context.WithDeadline(ctx, time.Now().Add(params.MaxSessionDuration))
 	defer cancel()
@@ -50,9 +59,10 @@ func runWOWCommand(ctx context.Context, params runWOWCommandParams) error {
 	if err != nil {
 		return err
 	}
-	fmt.Fprintln(params.output, "Your Word of Wisdom for today:")
-	fmt.Fprintln(params.output, result)
-	return nil
+	return writeLines(params.output,
+		"Your Word of Wisdom for today:",
+		result,
+	)
 }
 
 func newClientCmd(container *dig.Container) *cobra.Command {
