@@ -55,7 +55,7 @@
 			<div id="nav">
 				<select id="files">
 				
-				<option value="file0">word-of-wisdom-go/cmd/client/client.go (96.8%)</option>
+				<option value="file0">word-of-wisdom-go/cmd/client/client.go (93.9%)</option>
 				
 				<option value="file1">word-of-wisdom-go/cmd/client/dialer.go (88.9%)</option>
 				
@@ -75,45 +75,53 @@
 				
 				<option value="file9">word-of-wisdom-go/cmd/server/tcp_server.go (71.9%)</option>
 				
-				<option value="file10">word-of-wisdom-go/pkg/api/tcp/commands/handler.go (90.5%)</option>
+				<option value="file10">word-of-wisdom-go/internal/api/tcp/commands/handler.go (92.9%)</option>
 				
-				<option value="file11">word-of-wisdom-go/pkg/api/tcp/commands/mock_command_handler.go (68.2%)</option>
+				<option value="file11">word-of-wisdom-go/internal/api/tcp/commands/register.go (100.0%)</option>
 				
-				<option value="file12">word-of-wisdom-go/pkg/api/tcp/server/server.go (92.3%)</option>
+				<option value="file12">word-of-wisdom-go/internal/api/tcp/server/mock_command_handler.go (68.2%)</option>
 				
-				<option value="file13">word-of-wisdom-go/pkg/app/challenges/challenges.go (96.2%)</option>
+				<option value="file13">word-of-wisdom-go/internal/api/tcp/server/register.go (100.0%)</option>
 				
-				<option value="file14">word-of-wisdom-go/pkg/app/challenges/mock_challenges.go (62.1%)</option>
+				<option value="file14">word-of-wisdom-go/internal/api/tcp/server/server.go (92.3%)</option>
 				
-				<option value="file15">word-of-wisdom-go/pkg/app/challenges/mock_request_rate_monitor.go (67.9%)</option>
+				<option value="file15">word-of-wisdom-go/internal/app/challenges.go (96.2%)</option>
 				
-				<option value="file16">word-of-wisdom-go/pkg/app/challenges/monitor.go (100.0%)</option>
+				<option value="file16">word-of-wisdom-go/internal/app/mock_challenges.go (62.1%)</option>
 				
-				<option value="file17">word-of-wisdom-go/pkg/app/wow/mock_query.go (67.9%)</option>
+				<option value="file17">word-of-wisdom-go/internal/app/mock_request_rate_monitor.go (67.9%)</option>
 				
-				<option value="file18">word-of-wisdom-go/pkg/app/wow/query.go (100.0%)</option>
+				<option value="file18">word-of-wisdom-go/internal/app/mock_wow_query.go (67.9%)</option>
 				
-				<option value="file19">word-of-wisdom-go/pkg/di/dig.go (100.0%)</option>
+				<option value="file19">word-of-wisdom-go/internal/app/monitor.go (100.0%)</option>
 				
-				<option value="file20">word-of-wisdom-go/pkg/diag/attributes.go (100.0%)</option>
+				<option value="file20">word-of-wisdom-go/internal/app/register.go (100.0%)</option>
 				
-				<option value="file21">word-of-wisdom-go/pkg/diag/mock_slog_handler.go (34.7%)</option>
+				<option value="file21">word-of-wisdom-go/internal/app/wow.go (100.0%)</option>
 				
-				<option value="file22">word-of-wisdom-go/pkg/diag/slog.go (93.1%)</option>
+				<option value="file22">word-of-wisdom-go/internal/config/load.go (94.4%)</option>
 				
-				<option value="file23">word-of-wisdom-go/pkg/diag/testing.go (75.0%)</option>
+				<option value="file23">word-of-wisdom-go/internal/config/provide.go (100.0%)</option>
 				
-				<option value="file24">word-of-wisdom-go/pkg/services/networking/session.go (100.0%)</option>
+				<option value="file24">word-of-wisdom-go/internal/di/dig.go (94.1%)</option>
 				
-				<option value="file25">word-of-wisdom-go/pkg/services/networking/testing.go (100.0%)</option>
+				<option value="file25">word-of-wisdom-go/internal/diag/attributes.go (100.0%)</option>
 				
-				<option value="file26">word-of-wisdom-go/pkg/services/register.go (100.0%)</option>
+				<option value="file26">word-of-wisdom-go/internal/diag/mock_slog_handler.go (34.7%)</option>
 				
-				<option value="file27">word-of-wisdom-go/pkg/services/testing.go (50.0%)</option>
+				<option value="file27">word-of-wisdom-go/internal/diag/slog.go (93.1%)</option>
 				
-				<option value="file28">word-of-wisdom-go/pkg/services/time.go (100.0%)</option>
+				<option value="file28">word-of-wisdom-go/internal/diag/testing.go (75.0%)</option>
 				
-				<option value="file29">word-of-wisdom-go/pkg/services/uuid.go (100.0%)</option>
+				<option value="file29">word-of-wisdom-go/internal/services/register.go (100.0%)</option>
+				
+				<option value="file30">word-of-wisdom-go/internal/services/session_io.go (100.0%)</option>
+				
+				<option value="file31">word-of-wisdom-go/internal/services/testing.go (86.7%)</option>
+				
+				<option value="file32">word-of-wisdom-go/internal/services/time.go (100.0%)</option>
+				
+				<option value="file33">word-of-wisdom-go/internal/services/uuid.go (100.0%)</option>
 				
 				</select>
 			</div>
@@ -145,7 +153,7 @@ import (
         "log/slog"
         "os"
         "time"
-        "word-of-wisdom-go/pkg/diag"
+        "word-of-wisdom-go/internal/diag"
 
         "github.com/spf13/cobra"
         "go.uber.org/dig"
@@ -168,6 +176,15 @@ type runWOWCommandParams struct {
         output        io.Writer
 }
 
+func writeLines(w io.Writer, lines ...string) error <span class="cov5" title="2">{
+        for _, line := range lines </span><span class="cov10" title="4">{
+                if _, err := fmt.Fprintln(w, line); err != nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("failed to write line: %w", err)
+                }</span>
+        }
+        <span class="cov5" title="2">return nil</span>
+}
+
 func runWOWCommand(ctx context.Context, params runWOWCommandParams) error <span class="cov10" title="4">{
         ctx, cancel := context.WithDeadline(ctx, time.Now().Add(params.MaxSessionDuration))
         defer cancel()
@@ -188,9 +205,10 @@ func runWOWCommand(ctx context.Context, params runWOWCommandParams) error <span 
         if err != nil </span><span class="cov1" title="1">{
                 return err
         }</span>
-        <span class="cov5" title="2">fmt.Fprintln(params.output, "Your Word of Wisdom for today:")
-        fmt.Fprintln(params.output, result)
-        return nil</span>
+        <span class="cov5" title="2">return writeLines(params.output,
+                "Your Word of Wisdom for today:",
+                result,
+        )</span>
 }
 
 func newClientCmd(container *dig.Container) *cobra.Command <span class="cov10" title="4">{
@@ -229,19 +247,19 @@ import (
         "fmt"
         "net"
         "time"
-        "word-of-wisdom-go/pkg/services/networking"
+        "word-of-wisdom-go/internal/services"
 
         "go.uber.org/dig"
 )
 
 type SessionDialer interface {
         // DialSession establishes new connection and returns session and close function
-        DialSession(network, address string) (networking.Session, func() error, error)
+        DialSession(network, address string) (*services.SessionIO, func() error, error)
 }
 
-type sessionDialerFunc func(network, address string) (networking.Session, func() error, error)
+type sessionDialerFunc func(network, address string) (*services.SessionIO, func() error, error)
 
-func (f sessionDialerFunc) DialSession(network, address string) (networking.Session, func() error, error) <span class="cov10" title="6">{
+func (f sessionDialerFunc) DialSession(network, address string) (*services.SessionIO, func() error, error) <span class="cov10" title="6">{
         return f(network, address)
 }</span>
 
@@ -255,7 +273,7 @@ type SessionDialerDeps struct {
 }
 
 func newSessionDialer(deps SessionDialerDeps) SessionDialer <span class="cov6" title="3">{
-        return sessionDialerFunc(func(network, address string) (networking.Session, func() error, error) </span><span class="cov4" title="2">{
+        return sessionDialerFunc(func(network, address string) (*services.SessionIO, func() error, error) </span><span class="cov4" title="2">{
                 conn, err := net.Dial(network, address)
                 if err != nil </span><span class="cov1" title="1">{
                         return nil, nil, fmt.Errorf("error connecting to server: %w", err)
@@ -263,7 +281,7 @@ func newSessionDialer(deps SessionDialerDeps) SessionDialer <span class="cov6" t
                 <span class="cov1" title="1">if err = conn.SetDeadline(time.Now().Add(deps.IOTimeout)); err != nil </span><span class="cov0" title="0">{ // coverage-ignore // hard to simulate this
                         return nil, nil, fmt.Errorf("failed to set deadline: %w", err)
                 }</span>
-                <span class="cov1" title="1">session := networking.NewSession(conn.LocalAddr().String(), conn)
+                <span class="cov1" title="1">session := services.NewSessionIO(conn.LocalAddr().String(), conn)
                 return session, conn.Close, nil</span>
         })
 }
@@ -303,11 +321,11 @@ import (
         "errors"
         "fmt"
         "log/slog"
-        "word-of-wisdom-go/config"
-        "word-of-wisdom-go/pkg/app/challenges"
-        "word-of-wisdom-go/pkg/di"
-        "word-of-wisdom-go/pkg/diag"
-        "word-of-wisdom-go/pkg/services"
+        "word-of-wisdom-go/internal/app"
+        "word-of-wisdom-go/internal/config"
+        "word-of-wisdom-go/internal/di"
+        "word-of-wisdom-go/internal/diag"
+        "word-of-wisdom-go/internal/services"
 
         "github.com/spf13/cobra"
         "go.uber.org/dig"
@@ -370,13 +388,14 @@ func newRootCmd(container *dig.Container) *cobra.Command <span class="cov10" tit
                         di.ProvideAll(container,
                                 di.ProvideValue(rootLogger),
 
-                                // app layer
-                                challenges.NewChallenges,
-
-                                // client deps
+                                // client specific deps
                                 newSessionDialer,
                                 newWOWCommand,
+                                di.ProvideAs[*app.Challenges, challengesService],
                         ),
+
+                        // app layer
+                        app.Register(container),
 
                         // service layer
                         services.Register(container),
@@ -400,7 +419,6 @@ import (
         "log/slog"
         "os"
         "time"
-        "word-of-wisdom-go/pkg/app/challenges"
 
         "github.com/samber/lo"
         "github.com/spf13/cobra"
@@ -412,7 +430,7 @@ type runSolveChallengeCommandParams struct {
 
         RootLogger *slog.Logger
 
-        challenges.Challenges
+        Challenges challengesService
 
         // client params
         challengeToSolve string
@@ -568,23 +586,27 @@ import (
         "strconv"
         "strings"
         "time"
-        "word-of-wisdom-go/pkg/app/challenges"
-        "word-of-wisdom-go/pkg/services/networking"
+        "word-of-wisdom-go/internal/api/tcp/commands"
+        "word-of-wisdom-go/internal/services"
 
         "go.uber.org/dig"
 )
 
 type WOWCommand interface {
-        Process(ctx context.Context, session networking.Session) (string, error)
+        Process(ctx context.Context, session *services.SessionIO) (string, error)
 }
 
-type WOWCommandFunc func(ctx context.Context, session networking.Session) (string, error)
+type WOWCommandFunc func(ctx context.Context, session *services.SessionIO) (string, error)
 
-func (f WOWCommandFunc) Process(ctx context.Context, session networking.Session) (string, error) <span class="cov10" title="10">{
+func (f WOWCommandFunc) Process(ctx context.Context, session *services.SessionIO) (string, error) <span class="cov10" title="10">{
         return f(ctx, session)
 }</span>
 
 var _ WOWCommandFunc = WOWCommandFunc(nil)
+
+type challengesService interface {
+        SolveChallenge(ctx context.Context, complexity int, challenge string) (string, error)
+}
 
 type WOWCommandDeps struct {
         dig.In
@@ -592,37 +614,37 @@ type WOWCommandDeps struct {
         RootLogger *slog.Logger
 
         // app layer
-        challenges.Challenges
+        Challenges challengesService
 }
 
 func newWOWCommand(deps WOWCommandDeps) WOWCommand <span class="cov9" title="8">{
         logger := deps.RootLogger.WithGroup("client")
-        return WOWCommandFunc(func(ctx context.Context, session networking.Session) (string, error) </span><span class="cov8" title="7">{
+        return WOWCommandFunc(func(ctx context.Context, session *services.SessionIO) (string, error) </span><span class="cov8" title="7">{
                 logger.DebugContext(ctx, "Sending GET_WOW request")
 
-                if err := session.WriteLine("GET_WOW"); err != nil </span><span class="cov1" title="1">{
+                if err := session.WriteLine(commands.CommandGetWow); err != nil </span><span class="cov0" title="0">{
                         return "", fmt.Errorf("failed to write to the server: %w", err)
                 }</span>
 
-                <span class="cov8" title="6">line, err := session.ReadLine()
-                if err != nil </span><span class="cov0" title="0">{
+                <span class="cov8" title="7">line, err := session.ReadLine()
+                if err != nil </span><span class="cov1" title="1">{
                         return "", fmt.Errorf("failed to read the response: %w", err)
                 }</span>
 
                 <span class="cov8" title="6">logger.DebugContext(ctx, "Got response", slog.String("data", line))
 
-                if strings.Index(line, "WOW:") == 0 </span><span class="cov1" title="1">{
+                if strings.Index(line, commands.WowResponsePrefix) == 0 </span><span class="cov1" title="1">{
                         logger.DebugContext(ctx, "Got WOW response. No challenge required")
                         return strings.Trim(line[4:], " "), nil
                 }</span>
 
-                <span class="cov7" title="5">if strings.Index(line, "CHALLENGE_REQUIRED:") != 0 </span><span class="cov1" title="1">{
+                <span class="cov7" title="5">if strings.Index(line, commands.ChallengeRequiredPrefix) != 0 </span><span class="cov1" title="1">{
                         return "", fmt.Errorf("got unexpected challenge requirement response %s: %w", line, err)
                 }</span>
 
                 <span class="cov6" title="4">separatorIndex := strings.Index(line, ";")
 
-                challenge := strings.Trim(line[len("CHALLENGE_REQUIRED:"):separatorIndex], " ")
+                challenge := strings.Trim(line[len(commands.ChallengeRequiredPrefix):separatorIndex], " ")
                 complexity, err := strconv.Atoi(line[separatorIndex+1:])
                 if err != nil </span><span class="cov1" title="1">{
                         return "", err
@@ -640,7 +662,7 @@ func newWOWCommand(deps WOWCommandDeps) WOWCommand <span class="cov9" title="8">
                         slog.Duration("solutionDuration", time.Since(solveStartedAt)),
                         slog.String("solution", solution),
                 )
-                if err = session.WriteLine("CHALLENGE_RESULT: " + solution); err != nil </span><span class="cov0" title="0">{
+                if err = session.WriteLine(commands.ChallengeResultPrefix + solution); err != nil </span><span class="cov0" title="0">{
                         return "", fmt.Errorf("failed to write to the server: %w", err)
                 }</span>
 
@@ -651,7 +673,7 @@ func newWOWCommand(deps WOWCommandDeps) WOWCommand <span class="cov9" title="8">
 
                 <span class="cov3" title="2">logger.DebugContext(ctx, "Got response", slog.String("data", line))
 
-                if strings.Index(line, "WOW:") == 0 </span><span class="cov1" title="1">{
+                if strings.Index(line, commands.WowResponsePrefix) == 0 </span><span class="cov1" title="1">{
                         return strings.Trim(line[4:], " "), nil
                 }</span>
 
@@ -693,14 +715,13 @@ import (
         "errors"
         "fmt"
         "log/slog"
-        "word-of-wisdom-go/config"
-        "word-of-wisdom-go/pkg/api/tcp/commands"
-        "word-of-wisdom-go/pkg/api/tcp/server"
-        "word-of-wisdom-go/pkg/app/challenges"
-        "word-of-wisdom-go/pkg/app/wow"
-        "word-of-wisdom-go/pkg/di"
-        "word-of-wisdom-go/pkg/diag"
-        "word-of-wisdom-go/pkg/services"
+        "word-of-wisdom-go/internal/api/tcp/commands"
+        "word-of-wisdom-go/internal/api/tcp/server"
+        "word-of-wisdom-go/internal/app"
+        "word-of-wisdom-go/internal/config"
+        "word-of-wisdom-go/internal/di"
+        "word-of-wisdom-go/internal/diag"
+        "word-of-wisdom-go/internal/services"
 
         "github.com/spf13/cobra"
         "go.uber.org/dig"
@@ -761,16 +782,15 @@ func newRootCmd(container *dig.Container) *cobra.Command <span class="cov10" tit
                         config.Provide(container, cfg),
                         di.ProvideAll(container,
                                 di.ProvideValue(rootLogger),
-
-                                // api layer
-                                commands.NewHandler,
-                                server.NewListener,
-
-                                // app layer
-                                challenges.NewChallenges,
-                                challenges.NewRequestRateMonitor,
-                                wow.NewQuery,
                         ),
+
+                        // api layer
+                        commands.Register(container),
+                        server.Register(container),
+
+                        // app layer
+                        app.Register(container),
+
                         // services
                         services.Register(container),
                 )
@@ -791,8 +811,8 @@ import (
         "log/slog"
         "os/signal"
         "time"
-        "word-of-wisdom-go/pkg/api/tcp/server"
-        "word-of-wisdom-go/pkg/diag"
+        "word-of-wisdom-go/internal/api/tcp/server"
+        "word-of-wisdom-go/internal/diag"
 
         "github.com/spf13/cobra"
         "go.uber.org/dig"
@@ -880,13 +900,39 @@ import (
         "fmt"
         "log/slog"
         "strings"
-        "word-of-wisdom-go/pkg/app/challenges"
-        "word-of-wisdom-go/pkg/app/wow"
-        "word-of-wisdom-go/pkg/diag"
-        "word-of-wisdom-go/pkg/services/networking"
+        "word-of-wisdom-go/internal/app"
+        "word-of-wisdom-go/internal/diag"
+        "word-of-wisdom-go/internal/services"
 
         "go.uber.org/dig"
 )
+
+// protocol related constants.
+const (
+        CommandGetWow           = "GET_WOW"
+        WowResponsePrefix       = "WOW: "
+        challengeRequired       = "CHALLENGE_REQUIRED"
+        ChallengeRequiredPrefix = challengeRequired + ": "
+        ChallengeResultPrefix   = "CHALLENGE_RESULT: "
+
+        errBadCmdResponse            = "ERR: BAD_CMD"
+        errInternalError             = "ERR: INTERNAL_ERROR"
+        errUnexpectedChallengeResult = "ERR: UNEXPECTED_CHALLENGE_RESULT"
+        errChallengeVerificationFail = "ERR: CHALLENGE_VERIFICATION_FAILED"
+)
+
+type wowQuery interface {
+        GetNextWoW(_ context.Context) (string, error)
+}
+
+type requestRateMonitor interface {
+        RecordRequest(ctx context.Context, clientID string) (app.RecordRequestResult, error)
+}
+
+type challengesService interface {
+        GenerateNewChallenge(clientID string) (string, error)
+        VerifySolution(complexity int, challenge, solution string) bool
+}
 
 type CommandHandlerDeps struct {
         dig.In
@@ -894,98 +940,89 @@ type CommandHandlerDeps struct {
         RootLogger *slog.Logger
 
         // components
-        challenges.RequestRateMonitor
-        challenges.Challenges
-        wow.Query
+        RequestRateMonitor requestRateMonitor
+        Challenges         challengesService
+        Query              wowQuery
 }
 
-type CommandHandler interface {
-        Handle(ctx context.Context, con networking.Session) error
-}
-
-type commandHandler struct {
-        CommandHandlerDeps
+type CommandHandler struct {
+        deps   CommandHandlerDeps
         logger *slog.Logger
 }
 
-func (h *commandHandler) trace(ctx context.Context, msg string, args ...any) <span class="cov8" title="6">{
+func (h *CommandHandler) trace(ctx context.Context, msg string, args ...any) <span class="cov8" title="7">{
         h.logger.DebugContext(ctx, msg, args...)
 }</span>
 
-func NewHandler(deps CommandHandlerDeps) CommandHandler <span class="cov10" title="9">{
-        return &amp;commandHandler{
-                CommandHandlerDeps: deps,
-                logger:             deps.RootLogger.WithGroup("tcp.server.handler"),
-        }
-}</span>
-
-func (h *commandHandler) performChallengeVerification(
+func (h *CommandHandler) performChallengeVerification(
         ctx context.Context,
-        con networking.Session,
-        monitoringResult challenges.RecordRequestResult,
-) (bool, error) <span class="cov5" title="3">{
+        session *services.SessionIO,
+        monitoringResult app.RecordRequestResult,
+) (bool, error) <span class="cov6" title="4">{
         var challenge string
-        challenge, err := h.Challenges.GenerateNewChallenge(con.ClientID())
+        challenge, err := h.deps.Challenges.GenerateNewChallenge(session.ClientID())
         if err != nil </span><span class="cov1" title="1">{
                 return false, fmt.Errorf("failed to generate new challenge: %w", err)
         }</span>
 
-        <span class="cov3" title="2">h.trace(ctx, "Requiring to solve challenge", slog.Int("complexity", monitoringResult.ChallengeComplexity))
-        challengeData := fmt.Sprintf("CHALLENGE_REQUIRED: %s;%d", challenge, monitoringResult.ChallengeComplexity)
-        if err = con.WriteLine(challengeData); err != nil </span><span class="cov0" title="0">{
-                return false, err
+        <span class="cov5" title="3">h.trace(ctx, "Requiring to solve challenge", slog.Int("complexity", monitoringResult.ChallengeComplexity))
+        challengeData := fmt.Sprintf(
+                "%s%s;%d",
+                ChallengeRequiredPrefix, challenge, monitoringResult.ChallengeComplexity)
+        if err = session.WriteLine(challengeData); err != nil </span><span class="cov1" title="1">{
+                return false, fmt.Errorf("failed to send challenge: %w", err)
         }</span>
         <span class="cov3" title="2">var cmd string
-        if cmd, err = con.ReadLine(); err != nil </span><span class="cov0" title="0">{
-                return false, err
+        if cmd, err = session.ReadLine(); err != nil </span><span class="cov0" title="0">{
+                return false, fmt.Errorf("failed to read challenge result: %w", err)
         }</span>
-        <span class="cov3" title="2">if strings.Index(cmd, "CHALLENGE_RESULT:") != 0 </span><span class="cov0" title="0">{
+        <span class="cov3" title="2">if strings.Index(cmd, ChallengeResultPrefix) != 0 </span><span class="cov0" title="0">{
                 h.trace(ctx, "Got unexpected challenge result", slog.String("data", cmd))
-                return false, con.WriteLine("ERR: UNEXPECTED_CHALLENGE_RESULT")
+                return false, session.WriteLine(errUnexpectedChallengeResult)
         }</span>
 
-        <span class="cov3" title="2">if !h.Challenges.VerifySolution(
+        <span class="cov3" title="2">if !h.deps.Challenges.VerifySolution(
                 monitoringResult.ChallengeComplexity,
                 challenge,
-                strings.Trim(cmd[len("CHALLENGE_RESULT:"):], " "),
+                strings.Trim(cmd[len(ChallengeResultPrefix):], " "),
         ) </span><span class="cov1" title="1">{
                 h.trace(ctx, "Challenge verification failed", slog.String("data", cmd))
-                return false, con.WriteLine("ERR: CHALLENGE_VERIFICATION_FAILED")
+                return false, session.WriteLine(errChallengeVerificationFail)
         }</span>
         <span class="cov1" title="1">return true, nil</span>
 }
 
-func (h *commandHandler) Handle(ctx context.Context, con networking.Session) error <span class="cov9" title="8">{
-        cmd, err := con.ReadLine()
+func (h *CommandHandler) Handle(ctx context.Context, session *services.SessionIO) error <span class="cov9" title="9">{
+        cmd, err := session.ReadLine()
         if err != nil </span><span class="cov1" title="1">{
-                return err
+                return fmt.Errorf("failed to read command: %w", err)
         }</span>
 
         // If we need to extend it to support multiple commands
         // then this will need to be refactored roughly as follows:
         // - new Commands component is added that implement all various commands
-        // - the HandleCommands will read the command from the connection, and forward the processing to particular
-        //   command implementation
+        // - the HandleCommands will read the command from the connection, and forward
+        //   the processing to particular command implementation
         // Keeping it simple for now since we need just a single command.
-        <span class="cov8" title="7">if cmd != "GET_WOW" </span><span class="cov1" title="1">{
+        <span class="cov9" title="8">if cmd != CommandGetWow </span><span class="cov1" title="1">{
                 h.trace(ctx, "Got bad command", slog.String("cmd", cmd))
-                return con.WriteLine("ERR: BAD_CMD")
+                return session.WriteLine(errBadCmdResponse)
         }</span>
 
-        <span class="cov8" title="6">monitoringResult, err := h.RequestRateMonitor.RecordRequest(ctx, con.ClientID())
+        <span class="cov8" title="7">monitoringResult, err := h.deps.RequestRateMonitor.RecordRequest(ctx, session.ClientID())
         if err != nil </span><span class="cov1" title="1">{
                 h.logger.ErrorContext(ctx,
                         "Failed to record request",
-                        slog.String("clientID", con.ClientID()),
+                        slog.String("clientID", session.ClientID()),
                         diag.ErrAttr(err),
                 )
-                return con.WriteLine("ERR: INTERNAL_ERROR")
+                return session.WriteLine(errInternalError)
         }</span>
 
-        <span class="cov7" title="5">if monitoringResult.ChallengeRequired </span><span class="cov5" title="3">{
+        <span class="cov8" title="6">if monitoringResult.ChallengeRequired </span><span class="cov6" title="4">{
                 var ok bool
-                ok, err = h.performChallengeVerification(ctx, con, monitoringResult)
-                if err != nil </span><span class="cov1" title="1">{
+                ok, err = h.performChallengeVerification(ctx, session, monitoringResult)
+                if err != nil </span><span class="cov3" title="2">{
                         return err
                 }</span>
                 <span class="cov3" title="2">if !ok </span><span class="cov1" title="1">{
@@ -993,53 +1030,80 @@ func (h *commandHandler) Handle(ctx context.Context, con networking.Session) err
                 }</span>
         }
 
-        <span class="cov5" title="3">wow, err := h.Query.GetNextWoW(ctx)
+        <span class="cov5" title="3">wow, err := h.deps.Query.GetNextWoW(ctx)
         if err != nil </span><span class="cov1" title="1">{
                 return fmt.Errorf("failed to get next wow: %w", err)
         }</span>
 
         <span class="cov3" title="2">h.trace(ctx, "Responding with WOW")
-        return con.WriteLine("WOW: " + wow)</span>
+        return session.WriteLine(WowResponsePrefix + wow)</span>
 }
+
+func NewHandler(deps CommandHandlerDeps) *CommandHandler <span class="cov10" title="10">{
+        return &amp;CommandHandler{
+                deps:   deps,
+                logger: deps.RootLogger.WithGroup("tcp.server.handler"),
+        }
+}</span>
 </pre>
 		
-		<pre class="file" id="file11" style="display: none">// Code generated by mockery. DO NOT EDIT.
+		<pre class="file" id="file11" style="display: none">package commands
+
+import (
+        "word-of-wisdom-go/internal/app"
+        "word-of-wisdom-go/internal/di"
+
+        "go.uber.org/dig"
+)
+
+func Register(container *dig.Container) error <span class="cov8" title="1">{
+        return di.ProvideAll(container,
+                di.ProvideAs[*app.Challenges, challengesService],
+                di.ProvideAs[*app.RequestRateMonitor, requestRateMonitor],
+                di.ProvideAs[*app.WowQuery, wowQuery],
+
+                NewHandler,
+        )
+}</span>
+</pre>
+		
+		<pre class="file" id="file12" style="display: none">// Code generated by mockery. DO NOT EDIT.
 
 //go:build !release
 
-package commands
+package server
 
 import (
         context "context"
-        networking "word-of-wisdom-go/pkg/services/networking"
+        services "word-of-wisdom-go/internal/services"
 
         mock "github.com/stretchr/testify/mock"
 )
 
-// MockCommandHandler is an autogenerated mock type for the CommandHandler type
-type MockCommandHandler struct {
+// mockCommandHandler is an autogenerated mock type for the commandHandler type
+type mockCommandHandler struct {
         mock.Mock
 }
 
-type MockCommandHandler_Expecter struct {
+type mockCommandHandler_Expecter struct {
         mock *mock.Mock
 }
 
-func (_m *MockCommandHandler) EXPECT() *MockCommandHandler_Expecter <span class="cov7" title="3">{
-        return &amp;MockCommandHandler_Expecter{mock: &amp;_m.Mock}
+func (_m *mockCommandHandler) EXPECT() *mockCommandHandler_Expecter <span class="cov7" title="3">{
+        return &amp;mockCommandHandler_Expecter{mock: &amp;_m.Mock}
 }</span>
 
-// Handle provides a mock function with given fields: ctx, con
-func (_m *MockCommandHandler) Handle(ctx context.Context, con networking.Session) error <span class="cov7" title="3">{
-        ret := _m.Called(ctx, con)
+// Handle provides a mock function with given fields: ctx, session
+func (_m *mockCommandHandler) Handle(ctx context.Context, session *services.SessionIO) error <span class="cov7" title="3">{
+        ret := _m.Called(ctx, session)
 
         if len(ret) == 0 </span><span class="cov0" title="0">{
                 panic("no return value specified for Handle")</span>
         }
 
         <span class="cov7" title="3">var r0 error
-        if rf, ok := ret.Get(0).(func(context.Context, networking.Session) error); ok </span><span class="cov7" title="3">{
-                r0 = rf(ctx, con)
+        if rf, ok := ret.Get(0).(func(context.Context, *services.SessionIO) error); ok </span><span class="cov7" title="3">{
+                r0 = rf(ctx, session)
         }</span> else<span class="cov0" title="0"> {
                 r0 = ret.Error(0)
         }</span>
@@ -1047,42 +1111,42 @@ func (_m *MockCommandHandler) Handle(ctx context.Context, con networking.Session
         <span class="cov4" title="2">return r0</span>
 }
 
-// MockCommandHandler_Handle_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Handle'
-type MockCommandHandler_Handle_Call struct {
+// mockCommandHandler_Handle_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Handle'
+type mockCommandHandler_Handle_Call struct {
         *mock.Call
 }
 
 // Handle is a helper method to define mock.On call
 //   - ctx context.Context
-//   - con networking.Session
-func (_e *MockCommandHandler_Expecter) Handle(ctx interface{}, con interface{}) *MockCommandHandler_Handle_Call <span class="cov7" title="3">{
-        return &amp;MockCommandHandler_Handle_Call{Call: _e.mock.On("Handle", ctx, con)}
+//   - session *services.SessionIO
+func (_e *mockCommandHandler_Expecter) Handle(ctx interface{}, session interface{}) *mockCommandHandler_Handle_Call <span class="cov7" title="3">{
+        return &amp;mockCommandHandler_Handle_Call{Call: _e.mock.On("Handle", ctx, session)}
 }</span>
 
-func (_c *MockCommandHandler_Handle_Call) Run(run func(ctx context.Context, con networking.Session)) *MockCommandHandler_Handle_Call <span class="cov0" title="0">{
+func (_c *mockCommandHandler_Handle_Call) Run(run func(ctx context.Context, session *services.SessionIO)) *mockCommandHandler_Handle_Call <span class="cov0" title="0">{
         _c.Call.Run(func(args mock.Arguments) </span><span class="cov0" title="0">{
-                run(args[0].(context.Context), args[1].(networking.Session))
+                run(args[0].(context.Context), args[1].(*services.SessionIO))
         }</span>)
         <span class="cov0" title="0">return _c</span>
 }
 
-func (_c *MockCommandHandler_Handle_Call) Return(_a0 error) *MockCommandHandler_Handle_Call <span class="cov0" title="0">{
+func (_c *mockCommandHandler_Handle_Call) Return(_a0 error) *mockCommandHandler_Handle_Call <span class="cov0" title="0">{
         _c.Call.Return(_a0)
         return _c
 }</span>
 
-func (_c *MockCommandHandler_Handle_Call) RunAndReturn(run func(context.Context, networking.Session) error) *MockCommandHandler_Handle_Call <span class="cov7" title="3">{
+func (_c *mockCommandHandler_Handle_Call) RunAndReturn(run func(context.Context, *services.SessionIO) error) *mockCommandHandler_Handle_Call <span class="cov7" title="3">{
         _c.Call.Return(run)
         return _c
 }</span>
 
-// NewMockCommandHandler creates a new instance of MockCommandHandler. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// newMockCommandHandler creates a new instance of mockCommandHandler. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
-func NewMockCommandHandler(t interface {
+func newMockCommandHandler(t interface {
         mock.TestingT
         Cleanup(func())
-}) *MockCommandHandler <span class="cov10" title="5">{
-        mock := &amp;MockCommandHandler{}
+}) *mockCommandHandler <span class="cov10" title="5">{
+        mock := &amp;mockCommandHandler{}
         mock.Mock.Test(t)
 
         t.Cleanup(func() </span><span class="cov10" title="5">{ mock.AssertExpectations(t) }</span>)
@@ -1091,7 +1155,25 @@ func NewMockCommandHandler(t interface {
 }
 </pre>
 		
-		<pre class="file" id="file12" style="display: none">package server
+		<pre class="file" id="file13" style="display: none">package server
+
+import (
+        "word-of-wisdom-go/internal/api/tcp/commands"
+        "word-of-wisdom-go/internal/di"
+
+        "go.uber.org/dig"
+)
+
+func Register(container *dig.Container) error <span class="cov8" title="1">{
+        return di.ProvideAll(container,
+                di.ProvideAs[*commands.CommandHandler, commandHandler],
+
+                NewListener,
+        )
+}</span>
+</pre>
+		
+		<pre class="file" id="file14" style="display: none">package server
 
 import (
         "context"
@@ -1102,13 +1184,15 @@ import (
         "runtime/debug"
         "strings"
         "time"
-        "word-of-wisdom-go/pkg/api/tcp/commands"
-        "word-of-wisdom-go/pkg/diag"
-        "word-of-wisdom-go/pkg/services"
-        "word-of-wisdom-go/pkg/services/networking"
+        "word-of-wisdom-go/internal/diag"
+        "word-of-wisdom-go/internal/services"
 
         "go.uber.org/dig"
 )
+
+type commandHandler interface {
+        Handle(ctx context.Context, session *services.SessionIO) error
+}
 
 type ListenerDeps struct {
         dig.In
@@ -1120,7 +1204,7 @@ type ListenerDeps struct {
         MaxSessionDuration time.Duration `name:"config.tcpServer.maxSessionDuration"`
 
         // components
-        commands.CommandHandler
+        Handler commandHandler
 
         // services
         services.UUIDGenerator
@@ -1129,7 +1213,7 @@ type ListenerDeps struct {
 type Listener struct {
         logger             *slog.Logger
         listener           net.Listener
-        commandHandler     commands.CommandHandler
+        commandHandler     commandHandler
         port               int
         maxSessionDuration time.Duration
         listeningSignal    chan struct{}
@@ -1140,7 +1224,7 @@ func NewListener(deps ListenerDeps) *Listener <span class="cov10" title="7">{
         return &amp;Listener{
                 port:               deps.Port,
                 maxSessionDuration: deps.MaxSessionDuration,
-                commandHandler:     deps.CommandHandler,
+                commandHandler:     deps.Handler,
                 logger:             deps.RootLogger.WithGroup("tcp.server"),
                 listeningSignal:    make(chan struct{}),
                 uuidGenerator:      deps.UUIDGenerator,
@@ -1187,7 +1271,7 @@ func (l *Listener) processAcceptedConnection(ctx context.Context, c net.Conn) <s
 
         <span class="cov6" title="3">l.logger.InfoContext(ctx, "Connection accepted", slog.String("remoteAddr", remoteAddr))
         defer c.Close()
-        session := networking.NewSession(extractHost(remoteAddr), c)
+        session := services.NewSessionIO(extractHost(remoteAddr), c)
         if err := l.commandHandler.Handle(ctx, session); err != nil </span><span class="cov1" title="1">{
                 l.logger.ErrorContext(ctx,
                         "Failed processing command",
@@ -1202,7 +1286,7 @@ func (l *Listener) Start(ctx context.Context) error <span class="cov8" title="5"
         var err error
         l.listener, err = net.Listen("tcp", fmt.Sprintf(":%d", l.port))
         if err != nil </span><span class="cov1" title="1">{
-                return err
+                return fmt.Errorf("failed to start listener: %w", err)
         }</span>
         <span class="cov7" title="4">close(l.listeningSignal)
 
@@ -1235,7 +1319,7 @@ func (l *Listener) Close() error <span class="cov8" title="5">{
 }
 </pre>
 		
-		<pre class="file" id="file13" style="display: none">package challenges
+		<pre class="file" id="file15" style="display: none">package app
 
 import (
         "context"
@@ -1245,49 +1329,29 @@ import (
         "math/big"
         "strconv"
         "time"
-        "word-of-wisdom-go/pkg/services"
+        "word-of-wisdom-go/internal/services"
 
         "go.uber.org/dig"
 )
 
 const zeroByte = 48
 
-func computeHash(input []byte) []byte <span class="cov8" title="484">{
+func computeHash(input []byte) []byte <span class="cov9" title="7756957">{
         hash := sha256.New()
         hash.Write(input)
         return hash.Sum(nil)
 }</span>
 
-func countLeadingZeros(hash []byte) int <span class="cov8" title="712">{
+func countLeadingZeros(hash []byte) int <span class="cov9" title="7757177">{
         count := 0
-        for _, char := range hash </span><span class="cov10" title="2302">{
-                if char == zeroByte </span><span class="cov9" title="1590">{
+        for _, char := range hash </span><span class="cov10" title="7788688">{
+                if char == zeroByte </span><span class="cov6" title="31511">{
                         count++
-                }</span> else<span class="cov8" title="712"> {
+                }</span> else<span class="cov9" title="7757177"> {
                         break</span>
                 }
         }
-        <span class="cov8" title="712">return count</span>
-}
-
-type Challenges interface {
-        GenerateNewChallenge(clientID string) (string, error)
-        VerifySolution(
-                complexity int,
-                challenge string,
-                solution string,
-        ) bool
-
-        // SolveChallenge returns a nonce that is a solution of the challenge.
-        // It is used by client side only and
-        // in real world scenario this may sit in it's own repo
-        // but keeping it simple for now.
-        // Returns error if the solution was not found
-        SolveChallenge(
-                ctx context.Context,
-                complexity int,
-                challenge string,
-        ) (string, error)
+        <span class="cov9" title="7757177">return count</span>
 }
 
 type Deps struct {
@@ -1303,21 +1367,21 @@ type Deps struct {
         computeHashFn func(input []byte) []byte
 }
 
-type challenges struct {
-        Deps
+type Challenges struct {
+        deps Deps
 }
 
-func (c *challenges) generateRandomBytes(size int) ([]byte, error) <span class="cov1" title="2">{
+func (c *Challenges) generateRandomBytes(size int) ([]byte, error) <span class="cov1" title="2">{
         nonce := make([]byte, size)
-        _, err := c.CryptoRandReader(nonce)
+        _, err := c.deps.CryptoRandReader(nonce)
         if err != nil </span><span class="cov0" title="0">{
                 return nil, err
         }</span>
         <span class="cov1" title="2">return nonce, nil</span>
 }
 
-func (c *challenges) GenerateNewChallenge(clientID string) (string, error) <span class="cov1" title="2">{
-        nowBytes := big.NewInt(c.Now().UnixNano()).Bytes()
+func (c *Challenges) GenerateNewChallenge(clientID string) (string, error) <span class="cov1" title="2">{
+        nowBytes := big.NewInt(c.deps.Now().UnixNano()).Bytes()
         nonce, err := c.generateRandomBytes(16) // TODO: may need to make it smaller (or configurable)
         if err != nil </span><span class="cov0" title="0">{
                 return "", err
@@ -1329,21 +1393,26 @@ func (c *challenges) GenerateNewChallenge(clientID string) (string, error) <span
         return hex.EncodeToString(challengeBytes), nil</span>
 }
 
-func (c *challenges) VerifySolution(
+func (c *Challenges) VerifySolution(
         complexity int,
         challenge string,
         solution string,
-) bool <span class="cov2" title="3">{
+) bool <span class="cov1" title="3">{
         hashInputBytes := make([]byte, len(challenge)+len(solution)+1)
         copy(hashInputBytes, []byte(challenge))
         hashInputBytes[len(challenge)] = ':'
         copy(hashInputBytes[len(challenge)+1:], []byte(solution))
-        actualHash := c.computeHashFn(hashInputBytes)
+        actualHash := c.deps.computeHashFn(hashInputBytes)
         leadingZerosNum := countLeadingZeros(actualHash)
         return leadingZerosNum &gt;= complexity
 }</span>
 
-func (c *challenges) SolveChallenge(ctx context.Context, complexity int, challenge string) (string, error) <span class="cov2" title="5">{
+// SolveChallenge returns a nonce that is a solution of the challenge.
+// It is used by client side only and
+// in real world scenario this may sit in it's own repo
+// but keeping it simple for now.
+// Returns error if the solution was not found.
+func (c *Challenges) SolveChallenge(ctx context.Context, complexity int, challenge string) (string, error) <span class="cov1" title="5">{
         challengePartEnd := len(challenge)
         hashInput := make([]byte, challengePartEnd+20) // we reserve 20 bytes for solution which should be enough
         copy(hashInput, []byte(challenge))
@@ -1351,8 +1420,8 @@ func (c *challenges) SolveChallenge(ctx context.Context, complexity int, challen
         nonce := 0
 
         deadline, hasDeadline := ctx.Deadline()
-        if !hasDeadline </span><span class="cov2" title="4">{
-                deadline = c.Deps.Now().Add(c.MaxSolveChallengeDuration)
+        if !hasDeadline </span><span class="cov1" title="4">{
+                deadline = c.deps.Now().Add(c.deps.MaxSolveChallengeDuration)
         }</span>
 
         /*
@@ -1365,39 +1434,39 @@ func (c *challenges) SolveChallenge(ctx context.Context, complexity int, challen
                 Benchmark has proven that at least up to complexity 3 the serial approach is
                 faster
         */
-        <span class="cov2" title="5">for </span><span class="cov8" title="709">{
+        <span class="cov1" title="5">for </span><span class="cov9" title="7757174">{
                 nonceStr := strconv.Itoa(nonce)
                 copy(hashInput[challengePartEnd+1:], []byte(nonceStr))
-                hash := c.computeHashFn(hashInput[:challengePartEnd+1+len(nonceStr)])
+                hash := c.deps.computeHashFn(hashInput[:challengePartEnd+1+len(nonceStr)])
                 leadingZeros := countLeadingZeros(hash)
-                if leadingZeros &gt;= complexity </span><span class="cov2" title="3">{
+                if leadingZeros &gt;= complexity </span><span class="cov1" title="3">{
                         return nonceStr, nil
                 }</span>
 
-                <span class="cov8" title="706">if c.Deps.Now().UnixNano() &gt;= deadline.UnixNano() </span><span class="cov1" title="2">{
+                <span class="cov9" title="7757171">if c.deps.Now().UnixNano() &gt;= deadline.UnixNano() </span><span class="cov1" title="2">{
                         break</span>
                 }
 
-                <span class="cov8" title="704">nonce++</span>
+                <span class="cov9" title="7757169">nonce++</span>
         }
         <span class="cov1" title="2">return "", errors.New("failed to solve challenge: deadline reached")</span>
 }
 
-func NewChallenges(deps Deps) Challenges <span class="cov3" title="10">{
-        if deps.computeHashFn == nil </span><span class="cov2" title="5">{
+func NewChallenges(deps Deps) *Challenges <span class="cov2" title="10">{
+        if deps.computeHashFn == nil </span><span class="cov1" title="5">{
                 deps.computeHashFn = computeHash
         }</span>
-        <span class="cov3" title="10">return &amp;challenges{
-                Deps: deps,
+        <span class="cov2" title="10">return &amp;Challenges{
+                deps: deps,
         }</span>
 }
 </pre>
 		
-		<pre class="file" id="file14" style="display: none">// Code generated by mockery. DO NOT EDIT.
+		<pre class="file" id="file16" style="display: none">// Code generated by mockery. DO NOT EDIT.
 
 //go:build !release
 
-package challenges
+package app
 
 import (
         context "context"
@@ -1405,7 +1474,7 @@ import (
         mock "github.com/stretchr/testify/mock"
 )
 
-// MockChallenges is an autogenerated mock type for the Challenges type
+// MockChallenges is an autogenerated mock type for the mockChallenges type
 type MockChallenges struct {
         mock.Mock
 }
@@ -1414,36 +1483,36 @@ type MockChallenges_Expecter struct {
         mock *mock.Mock
 }
 
-func (_m *MockChallenges) EXPECT() *MockChallenges_Expecter <span class="cov7" title="8">{
+func (_m *MockChallenges) EXPECT() *MockChallenges_Expecter <span class="cov8" title="9">{
         return &amp;MockChallenges_Expecter{mock: &amp;_m.Mock}
 }</span>
 
 // GenerateNewChallenge provides a mock function with given fields: clientID
-func (_m *MockChallenges) GenerateNewChallenge(clientID string) (string, error) <span class="cov4" title="3">{
+func (_m *MockChallenges) GenerateNewChallenge(clientID string) (string, error) <span class="cov5" title="4">{
         ret := _m.Called(clientID)
 
         if len(ret) == 0 </span><span class="cov0" title="0">{
                 panic("no return value specified for GenerateNewChallenge")</span>
         }
 
-        <span class="cov4" title="3">var r0 string
+        <span class="cov5" title="4">var r0 string
         var r1 error
         if rf, ok := ret.Get(0).(func(string) (string, error)); ok </span><span class="cov0" title="0">{
                 return rf(clientID)
         }</span>
-        <span class="cov4" title="3">if rf, ok := ret.Get(0).(func(string) string); ok </span><span class="cov0" title="0">{
+        <span class="cov5" title="4">if rf, ok := ret.Get(0).(func(string) string); ok </span><span class="cov0" title="0">{
                 r0 = rf(clientID)
-        }</span> else<span class="cov4" title="3"> {
+        }</span> else<span class="cov5" title="4"> {
                 r0 = ret.Get(0).(string)
         }</span>
 
-        <span class="cov4" title="3">if rf, ok := ret.Get(1).(func(string) error); ok </span><span class="cov0" title="0">{
+        <span class="cov5" title="4">if rf, ok := ret.Get(1).(func(string) error); ok </span><span class="cov0" title="0">{
                 r1 = rf(clientID)
-        }</span> else<span class="cov4" title="3"> {
+        }</span> else<span class="cov5" title="4"> {
                 r1 = ret.Error(1)
         }</span>
 
-        <span class="cov4" title="3">return r0, r1</span>
+        <span class="cov5" title="4">return r0, r1</span>
 }
 
 // MockChallenges_GenerateNewChallenge_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GenerateNewChallenge'
@@ -1453,7 +1522,7 @@ type MockChallenges_GenerateNewChallenge_Call struct {
 
 // GenerateNewChallenge is a helper method to define mock.On call
 //   - clientID string
-func (_e *MockChallenges_Expecter) GenerateNewChallenge(clientID interface{}) *MockChallenges_GenerateNewChallenge_Call <span class="cov4" title="3">{
+func (_e *MockChallenges_Expecter) GenerateNewChallenge(clientID interface{}) *MockChallenges_GenerateNewChallenge_Call <span class="cov5" title="4">{
         return &amp;MockChallenges_GenerateNewChallenge_Call{Call: _e.mock.On("GenerateNewChallenge", clientID)}
 }</span>
 
@@ -1464,7 +1533,7 @@ func (_c *MockChallenges_GenerateNewChallenge_Call) Run(run func(clientID string
         <span class="cov0" title="0">return _c</span>
 }
 
-func (_c *MockChallenges_GenerateNewChallenge_Call) Return(_a0 string, _a1 error) *MockChallenges_GenerateNewChallenge_Call <span class="cov4" title="3">{
+func (_c *MockChallenges_GenerateNewChallenge_Call) Return(_a0 string, _a1 error) *MockChallenges_GenerateNewChallenge_Call <span class="cov5" title="4">{
         _c.Call.Return(_a0, _a1)
         return _c
 }</span>
@@ -1585,21 +1654,21 @@ func (_c *MockChallenges_VerifySolution_Call) RunAndReturn(run func(int, string,
 func NewMockChallenges(t interface {
         mock.TestingT
         Cleanup(func())
-}) *MockChallenges <span class="cov10" title="15">{
+}) *MockChallenges <span class="cov10" title="16">{
         mock := &amp;MockChallenges{}
         mock.Mock.Test(t)
 
-        t.Cleanup(func() </span><span class="cov10" title="15">{ mock.AssertExpectations(t) }</span>)
+        t.Cleanup(func() </span><span class="cov10" title="16">{ mock.AssertExpectations(t) }</span>)
 
-        <span class="cov10" title="15">return mock</span>
+        <span class="cov10" title="16">return mock</span>
 }
 </pre>
 		
-		<pre class="file" id="file15" style="display: none">// Code generated by mockery. DO NOT EDIT.
+		<pre class="file" id="file17" style="display: none">// Code generated by mockery. DO NOT EDIT.
 
 //go:build !release
 
-package challenges
+package app
 
 import (
         context "context"
@@ -1607,7 +1676,7 @@ import (
         mock "github.com/stretchr/testify/mock"
 )
 
-// MockRequestRateMonitor is an autogenerated mock type for the RequestRateMonitor type
+// MockRequestRateMonitor is an autogenerated mock type for the mockRequestRateMonitor type
 type MockRequestRateMonitor struct {
         mock.Mock
 }
@@ -1616,36 +1685,36 @@ type MockRequestRateMonitor_Expecter struct {
         mock *mock.Mock
 }
 
-func (_m *MockRequestRateMonitor) EXPECT() *MockRequestRateMonitor_Expecter <span class="cov8" title="6">{
+func (_m *MockRequestRateMonitor) EXPECT() *MockRequestRateMonitor_Expecter <span class="cov8" title="7">{
         return &amp;MockRequestRateMonitor_Expecter{mock: &amp;_m.Mock}
 }</span>
 
 // RecordRequest provides a mock function with given fields: ctx, clientID
-func (_m *MockRequestRateMonitor) RecordRequest(ctx context.Context, clientID string) (RecordRequestResult, error) <span class="cov8" title="6">{
+func (_m *MockRequestRateMonitor) RecordRequest(ctx context.Context, clientID string) (RecordRequestResult, error) <span class="cov8" title="7">{
         ret := _m.Called(ctx, clientID)
 
         if len(ret) == 0 </span><span class="cov0" title="0">{
                 panic("no return value specified for RecordRequest")</span>
         }
 
-        <span class="cov8" title="6">var r0 RecordRequestResult
+        <span class="cov8" title="7">var r0 RecordRequestResult
         var r1 error
         if rf, ok := ret.Get(0).(func(context.Context, string) (RecordRequestResult, error)); ok </span><span class="cov0" title="0">{
                 return rf(ctx, clientID)
         }</span>
-        <span class="cov8" title="6">if rf, ok := ret.Get(0).(func(context.Context, string) RecordRequestResult); ok </span><span class="cov0" title="0">{
+        <span class="cov8" title="7">if rf, ok := ret.Get(0).(func(context.Context, string) RecordRequestResult); ok </span><span class="cov0" title="0">{
                 r0 = rf(ctx, clientID)
-        }</span> else<span class="cov8" title="6"> {
+        }</span> else<span class="cov8" title="7"> {
                 r0 = ret.Get(0).(RecordRequestResult)
         }</span>
 
-        <span class="cov8" title="6">if rf, ok := ret.Get(1).(func(context.Context, string) error); ok </span><span class="cov0" title="0">{
+        <span class="cov8" title="7">if rf, ok := ret.Get(1).(func(context.Context, string) error); ok </span><span class="cov0" title="0">{
                 r1 = rf(ctx, clientID)
-        }</span> else<span class="cov8" title="6"> {
+        }</span> else<span class="cov8" title="7"> {
                 r1 = ret.Error(1)
         }</span>
 
-        <span class="cov8" title="6">return r0, r1</span>
+        <span class="cov8" title="7">return r0, r1</span>
 }
 
 // MockRequestRateMonitor_RecordRequest_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RecordRequest'
@@ -1656,7 +1725,7 @@ type MockRequestRateMonitor_RecordRequest_Call struct {
 // RecordRequest is a helper method to define mock.On call
 //   - ctx context.Context
 //   - clientID string
-func (_e *MockRequestRateMonitor_Expecter) RecordRequest(ctx interface{}, clientID interface{}) *MockRequestRateMonitor_RecordRequest_Call <span class="cov8" title="6">{
+func (_e *MockRequestRateMonitor_Expecter) RecordRequest(ctx interface{}, clientID interface{}) *MockRequestRateMonitor_RecordRequest_Call <span class="cov8" title="7">{
         return &amp;MockRequestRateMonitor_RecordRequest_Call{Call: _e.mock.On("RecordRequest", ctx, clientID)}
 }</span>
 
@@ -1667,7 +1736,7 @@ func (_c *MockRequestRateMonitor_RecordRequest_Call) Run(run func(ctx context.Co
         <span class="cov0" title="0">return _c</span>
 }
 
-func (_c *MockRequestRateMonitor_RecordRequest_Call) Return(_a0 RecordRequestResult, _a1 error) *MockRequestRateMonitor_RecordRequest_Call <span class="cov8" title="6">{
+func (_c *MockRequestRateMonitor_RecordRequest_Call) Return(_a0 RecordRequestResult, _a1 error) *MockRequestRateMonitor_RecordRequest_Call <span class="cov8" title="7">{
         _c.Call.Return(_a0, _a1)
         return _c
 }</span>
@@ -1682,24 +1751,120 @@ func (_c *MockRequestRateMonitor_RecordRequest_Call) RunAndReturn(run func(conte
 func NewMockRequestRateMonitor(t interface {
         mock.TestingT
         Cleanup(func())
-}) *MockRequestRateMonitor <span class="cov10" title="8">{
+}) *MockRequestRateMonitor <span class="cov10" title="9">{
         mock := &amp;MockRequestRateMonitor{}
         mock.Mock.Test(t)
 
-        t.Cleanup(func() </span><span class="cov10" title="8">{ mock.AssertExpectations(t) }</span>)
+        t.Cleanup(func() </span><span class="cov10" title="9">{ mock.AssertExpectations(t) }</span>)
 
-        <span class="cov10" title="8">return mock</span>
+        <span class="cov10" title="9">return mock</span>
 }
 </pre>
 		
-		<pre class="file" id="file16" style="display: none">package challenges
+		<pre class="file" id="file18" style="display: none">// Code generated by mockery. DO NOT EDIT.
+
+//go:build !release
+
+package app
+
+import (
+        context "context"
+
+        mock "github.com/stretchr/testify/mock"
+)
+
+// MockWowQuery is an autogenerated mock type for the mockWowQuery type
+type MockWowQuery struct {
+        mock.Mock
+}
+
+type MockWowQuery_Expecter struct {
+        mock *mock.Mock
+}
+
+func (_m *MockWowQuery) EXPECT() *MockWowQuery_Expecter <span class="cov5" title="3">{
+        return &amp;MockWowQuery_Expecter{mock: &amp;_m.Mock}
+}</span>
+
+// GetNextWoW provides a mock function with given fields: _a0
+func (_m *MockWowQuery) GetNextWoW(_a0 context.Context) (string, error) <span class="cov5" title="3">{
+        ret := _m.Called(_a0)
+
+        if len(ret) == 0 </span><span class="cov0" title="0">{
+                panic("no return value specified for GetNextWoW")</span>
+        }
+
+        <span class="cov5" title="3">var r0 string
+        var r1 error
+        if rf, ok := ret.Get(0).(func(context.Context) (string, error)); ok </span><span class="cov0" title="0">{
+                return rf(_a0)
+        }</span>
+        <span class="cov5" title="3">if rf, ok := ret.Get(0).(func(context.Context) string); ok </span><span class="cov0" title="0">{
+                r0 = rf(_a0)
+        }</span> else<span class="cov5" title="3"> {
+                r0 = ret.Get(0).(string)
+        }</span>
+
+        <span class="cov5" title="3">if rf, ok := ret.Get(1).(func(context.Context) error); ok </span><span class="cov0" title="0">{
+                r1 = rf(_a0)
+        }</span> else<span class="cov5" title="3"> {
+                r1 = ret.Error(1)
+        }</span>
+
+        <span class="cov5" title="3">return r0, r1</span>
+}
+
+// MockWowQuery_GetNextWoW_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetNextWoW'
+type MockWowQuery_GetNextWoW_Call struct {
+        *mock.Call
+}
+
+// GetNextWoW is a helper method to define mock.On call
+//   - _a0 context.Context
+func (_e *MockWowQuery_Expecter) GetNextWoW(_a0 interface{}) *MockWowQuery_GetNextWoW_Call <span class="cov5" title="3">{
+        return &amp;MockWowQuery_GetNextWoW_Call{Call: _e.mock.On("GetNextWoW", _a0)}
+}</span>
+
+func (_c *MockWowQuery_GetNextWoW_Call) Run(run func(_a0 context.Context)) *MockWowQuery_GetNextWoW_Call <span class="cov0" title="0">{
+        _c.Call.Run(func(args mock.Arguments) </span><span class="cov0" title="0">{
+                run(args[0].(context.Context))
+        }</span>)
+        <span class="cov0" title="0">return _c</span>
+}
+
+func (_c *MockWowQuery_GetNextWoW_Call) Return(_a0 string, _a1 error) *MockWowQuery_GetNextWoW_Call <span class="cov5" title="3">{
+        _c.Call.Return(_a0, _a1)
+        return _c
+}</span>
+
+func (_c *MockWowQuery_GetNextWoW_Call) RunAndReturn(run func(context.Context) (string, error)) *MockWowQuery_GetNextWoW_Call <span class="cov0" title="0">{
+        _c.Call.Return(run)
+        return _c
+}</span>
+
+// NewMockWowQuery creates a new instance of MockWowQuery. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewMockWowQuery(t interface {
+        mock.TestingT
+        Cleanup(func())
+}) *MockWowQuery <span class="cov10" title="9">{
+        mock := &amp;MockWowQuery{}
+        mock.Mock.Test(t)
+
+        t.Cleanup(func() </span><span class="cov10" title="9">{ mock.AssertExpectations(t) }</span>)
+
+        <span class="cov10" title="9">return mock</span>
+}
+</pre>
+		
+		<pre class="file" id="file19" style="display: none">package app
 
 import (
         "context"
         "sync"
         "sync/atomic"
         "time"
-        "word-of-wisdom-go/pkg/services"
+        "word-of-wisdom-go/internal/services"
 
         "github.com/samber/lo"
         "go.uber.org/dig"
@@ -1708,10 +1873,6 @@ import (
 type RecordRequestResult struct {
         ChallengeRequired   bool
         ChallengeComplexity int
-}
-
-type RequestRateMonitor interface {
-        RecordRequest(ctx context.Context, clientID string) (RecordRequestResult, error)
 }
 
 type ChallengeConditionFunc func(nextClientCount, nextGlobalCount int64) RecordRequestResult
@@ -1737,8 +1898,8 @@ type RequestRateMonitorDeps struct {
         challengeConditionFunc ChallengeConditionFunc
 }
 
-type requestRateMonitor struct {
-        RequestRateMonitorDeps
+type RequestRateMonitor struct {
+        deps RequestRateMonitorDeps
 
         requestRateByClient sync.Map
         globalRequestsCount atomic.Int64
@@ -1748,21 +1909,21 @@ type requestRateMonitor struct {
 }
 
 // challengeCondition defines if challenge will be required and the complexity.
-func (m *requestRateMonitor) challengeCondition(nextClientCounter, nextGlobalCount int64) RecordRequestResult <span class="cov3" title="5">{
+func (m *RequestRateMonitor) challengeCondition(nextClientCounter, nextGlobalCount int64) RecordRequestResult <span class="cov3" title="5">{
         challengeRequired := false
         complexityRequired := 0
 
-        if nextClientCounter &gt; m.MaxUnverifiedClientRequests </span><span class="cov2" title="2">{
+        if nextClientCounter &gt; m.deps.MaxUnverifiedClientRequests </span><span class="cov2" title="2">{
                 challengeRequired = true
 
                 // We just grow it linearly, at some point (somewhere after 5 or 6)
                 // it's just going to become unreasonably complex to proceed
-                complexityRequired = int(nextClientCounter / m.MaxUnverifiedClientRequests)
+                complexityRequired = int(nextClientCounter / m.deps.MaxUnverifiedClientRequests)
         }</span>
 
-        <span class="cov3" title="5">if !challengeRequired &amp;&amp; nextGlobalCount &gt; m.MaxUnverifiedRequests </span><span class="cov2" title="2">{
+        <span class="cov3" title="5">if !challengeRequired &amp;&amp; nextGlobalCount &gt; m.deps.MaxUnverifiedRequests </span><span class="cov2" title="2">{
                 challengeRequired = true
-                globalCapacityScale := nextGlobalCount / m.MaxUnverifiedRequests
+                globalCapacityScale := nextGlobalCount / m.deps.MaxUnverifiedRequests
 
                 // If we're under pressure globally (current rate is 2x more than global threshold)
                 // then increase min complexity for all users
@@ -1778,7 +1939,7 @@ func (m *requestRateMonitor) challengeCondition(nextClientCounter, nextGlobalCou
         }</span>
 }
 
-func (m *requestRateMonitor) RecordRequest(_ context.Context, clientID string) (RecordRequestResult, error) <span class="cov10" title="222">{
+func (m *RequestRateMonitor) RecordRequest(_ context.Context, clientID string) (RecordRequestResult, error) <span class="cov10" title="168">{
         // We are not using the context yet, but in a real world system it may be required
         // since we will very likely store counters somewhere
 
@@ -1787,146 +1948,63 @@ func (m *requestRateMonitor) RecordRequest(_ context.Context, clientID string) (
         // and keep this data in something like redis, or use some other replication mechanism
         // and also use some sliding window algo with per client window.
 
-        now := m.Now().UnixMilli()
+        now := m.deps.Now().UnixMilli()
         lastTimestamp := m.windowStartedAt.Load()
-        if now-lastTimestamp &gt; m.WindowDuration.Milliseconds() </span><span class="cov2" title="3">{
+        if now-lastTimestamp &gt; m.deps.WindowDuration.Milliseconds() </span><span class="cov2" title="3">{
                 if m.windowStartedAt.CompareAndSwap(lastTimestamp, now) </span><span class="cov2" title="3">{
                         m.globalRequestsCount.Store(0)
                         m.requestRateByClient.Clear()
                 }</span>
         }
 
-        <span class="cov10" title="222">currentClientCounter, _ := m.requestRateByClient.LoadOrStore(clientID, new(int64))
+        <span class="cov10" title="168">currentClientCounter, _ := m.requestRateByClient.LoadOrStore(clientID, new(int64))
         nextClientCounter := atomic.AddInt64(currentClientCounter.(*int64), 1)
         nextGlobalCount := m.globalRequestsCount.Add(1)
 
-        return m.challengeConditionFunc(nextClientCounter, nextGlobalCount), nil</span>
+        return m.deps.challengeConditionFunc(nextClientCounter, nextGlobalCount), nil</span>
 }
 
-func NewRequestRateMonitor(deps RequestRateMonitorDeps) RequestRateMonitor <span class="cov4" title="8">{
-        m := &amp;requestRateMonitor{
-                RequestRateMonitorDeps: deps,
+func NewRequestRateMonitor(deps RequestRateMonitorDeps) *RequestRateMonitor <span class="cov4" title="8">{
+        m := &amp;RequestRateMonitor{
+                deps: deps,
         }
-        if m.challengeConditionFunc == nil </span><span class="cov3" title="6">{
-                m.challengeConditionFunc = m.challengeCondition
+        if m.deps.challengeConditionFunc == nil </span><span class="cov4" title="6">{
+                m.deps.challengeConditionFunc = m.challengeCondition
         }</span>
         <span class="cov4" title="8">return m</span>
 }
 </pre>
 		
-		<pre class="file" id="file17" style="display: none">// Code generated by mockery. DO NOT EDIT.
-
-//go:build !release
-
-package wow
+		<pre class="file" id="file20" style="display: none">package app
 
 import (
-        context "context"
+        "word-of-wisdom-go/internal/di"
 
-        mock "github.com/stretchr/testify/mock"
+        "go.uber.org/dig"
 )
 
-// MockQuery is an autogenerated mock type for the Query type
-type MockQuery struct {
-        mock.Mock
-}
-
-type MockQuery_Expecter struct {
-        mock *mock.Mock
-}
-
-func (_m *MockQuery) EXPECT() *MockQuery_Expecter <span class="cov5" title="3">{
-        return &amp;MockQuery_Expecter{mock: &amp;_m.Mock}
+func Register(container *dig.Container) error <span class="cov10" title="3">{
+        return di.ProvideAll(container,
+                NewChallenges,
+                NewRequestRateMonitor,
+                NewWowQuery,
+        )
 }</span>
-
-// GetNextWoW provides a mock function with given fields: ctx
-func (_m *MockQuery) GetNextWoW(ctx context.Context) (string, error) <span class="cov5" title="3">{
-        ret := _m.Called(ctx)
-
-        if len(ret) == 0 </span><span class="cov0" title="0">{
-                panic("no return value specified for GetNextWoW")</span>
-        }
-
-        <span class="cov5" title="3">var r0 string
-        var r1 error
-        if rf, ok := ret.Get(0).(func(context.Context) (string, error)); ok </span><span class="cov0" title="0">{
-                return rf(ctx)
-        }</span>
-        <span class="cov5" title="3">if rf, ok := ret.Get(0).(func(context.Context) string); ok </span><span class="cov0" title="0">{
-                r0 = rf(ctx)
-        }</span> else<span class="cov5" title="3"> {
-                r0 = ret.Get(0).(string)
-        }</span>
-
-        <span class="cov5" title="3">if rf, ok := ret.Get(1).(func(context.Context) error); ok </span><span class="cov0" title="0">{
-                r1 = rf(ctx)
-        }</span> else<span class="cov5" title="3"> {
-                r1 = ret.Error(1)
-        }</span>
-
-        <span class="cov5" title="3">return r0, r1</span>
-}
-
-// MockQuery_GetNextWoW_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetNextWoW'
-type MockQuery_GetNextWoW_Call struct {
-        *mock.Call
-}
-
-// GetNextWoW is a helper method to define mock.On call
-//   - ctx context.Context
-func (_e *MockQuery_Expecter) GetNextWoW(ctx interface{}) *MockQuery_GetNextWoW_Call <span class="cov5" title="3">{
-        return &amp;MockQuery_GetNextWoW_Call{Call: _e.mock.On("GetNextWoW", ctx)}
-}</span>
-
-func (_c *MockQuery_GetNextWoW_Call) Run(run func(ctx context.Context)) *MockQuery_GetNextWoW_Call <span class="cov0" title="0">{
-        _c.Call.Run(func(args mock.Arguments) </span><span class="cov0" title="0">{
-                run(args[0].(context.Context))
-        }</span>)
-        <span class="cov0" title="0">return _c</span>
-}
-
-func (_c *MockQuery_GetNextWoW_Call) Return(_a0 string, _a1 error) *MockQuery_GetNextWoW_Call <span class="cov5" title="3">{
-        _c.Call.Return(_a0, _a1)
-        return _c
-}</span>
-
-func (_c *MockQuery_GetNextWoW_Call) RunAndReturn(run func(context.Context) (string, error)) *MockQuery_GetNextWoW_Call <span class="cov0" title="0">{
-        _c.Call.Return(run)
-        return _c
-}</span>
-
-// NewMockQuery creates a new instance of MockQuery. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-// The first argument is typically a *testing.T value.
-func NewMockQuery(t interface {
-        mock.TestingT
-        Cleanup(func())
-}) *MockQuery <span class="cov10" title="8">{
-        mock := &amp;MockQuery{}
-        mock.Mock.Test(t)
-
-        t.Cleanup(func() </span><span class="cov10" title="8">{ mock.AssertExpectations(t) }</span>)
-
-        <span class="cov10" title="8">return mock</span>
-}
 </pre>
 		
-		<pre class="file" id="file18" style="display: none">//nolint:lll //hardcoded wow phrases
-package wow
+		<pre class="file" id="file21" style="display: none">//nolint:lll //hardcoded wow phrases
+package app
 
 import (
         "context"
         "math/rand/v2"
 )
 
-type Query interface {
-        GetNextWoW(ctx context.Context) (string, error)
-}
-
-type query struct {
+type WowQuery struct {
         phrases []string
 }
 
-func (q *query) GetNextWoW(_ context.Context) (string, error) <span class="cov10" title="2">{
+func (q *WowQuery) GetNextWoW(_ context.Context) (string, error) <span class="cov10" title="2">{
         // Using hardcoded list of phrases
         // We may want to change it to go to some API to get a next phrase
         // and fallback to the below if it failed. Or store them in a DB...
@@ -1935,8 +2013,8 @@ func (q *query) GetNextWoW(_ context.Context) (string, error) <span class="cov10
         return q.phrases[nextIndex], nil
 }</span>
 
-func NewQuery() Query <span class="cov10" title="2">{
-        return &amp;query{
+func NewWowQuery() *WowQuery <span class="cov10" title="2">{
+        return &amp;WowQuery{
                 phrases: []string{
                         "You create your own opportunities. Success doesn’t just come and find you–you have to go out and get it.",
                         "Never break your promises. Keep every promise; it makes you credible.",
@@ -1963,7 +2041,131 @@ func NewQuery() Query <span class="cov10" title="2">{
 }</span>
 </pre>
 		
-		<pre class="file" id="file19" style="display: none">package di
+		<pre class="file" id="file22" style="display: none">package config
+
+import (
+        "embed"
+        "fmt"
+
+        "github.com/spf13/viper"
+)
+
+//go:embed *.json
+var resources embed.FS
+
+func mergeResourceCfg(cfg *viper.Viper, resourceName string) error <span class="cov10" title="21">{
+        resourceStream, err := resources.Open(resourceName)
+        if err != nil </span><span class="cov5" title="4">{
+                return fmt.Errorf("failed to read config %v: %w", resourceName, err)
+        }</span>
+        <span class="cov9" title="17">defer resourceStream.Close()
+
+        if err = cfg.MergeConfig(resourceStream); err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to load config %v: %w", resourceName, err)
+        }</span>
+        <span class="cov9" title="17">return nil</span>
+}
+
+type LoadOpts struct {
+        env                   string
+        defaultConfigFileName string
+}
+
+func (opts *LoadOpts) WithEnv(val string) *LoadOpts <span class="cov7" title="9">{
+        if val != "" </span><span class="cov5" title="4">{
+                opts.env = val
+        }</span>
+        <span class="cov7" title="9">return opts</span>
+}
+
+func NewLoadOpts() *LoadOpts <span class="cov8" title="11">{
+        return &amp;LoadOpts{
+                env:                   "local",
+                defaultConfigFileName: "default.json",
+        }
+}</span>
+
+func Load(opts *LoadOpts) (*viper.Viper, error) <span class="cov8" title="11">{
+        cfg := viper.New()
+        cfg.SetConfigType("json")
+
+        if err := mergeResourceCfg(cfg, opts.defaultConfigFileName); err != nil </span><span class="cov1" title="1">{
+                return nil, err
+        }</span>
+
+        <span class="cov7" title="10">if err := mergeResourceCfg(cfg, opts.env+".json"); err != nil </span><span class="cov4" title="3">{
+                return nil, err
+        }</span>
+
+        <span class="cov6" title="7">return cfg, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file23" style="display: none">package config
+
+import (
+        "fmt"
+        "word-of-wisdom-go/internal/di"
+
+        "github.com/spf13/viper"
+        "go.uber.org/dig"
+)
+
+type configValueProvider struct {
+        cfg        *viper.Viper
+        configPath string
+        diPath     string
+}
+
+func provideConfigValue(cfg *viper.Viper, path string) configValueProvider <span class="cov10" title="30">{
+        if !cfg.IsSet(path) </span><span class="cov1" title="1">{
+                panic(fmt.Errorf("config key not found: %s", path))</span>
+        }
+        <span class="cov9" title="29">return configValueProvider{cfg, path, "config." + path}</span>
+}
+
+func (p configValueProvider) asInt() di.ConstructorWithOpts <span class="cov4" title="4">{
+        return di.ProvideValue(p.cfg.GetInt(p.configPath), dig.Name(p.diPath))
+}</span>
+
+func (p configValueProvider) asInt64() di.ConstructorWithOpts <span class="cov6" title="7">{
+        return di.ProvideValue(p.cfg.GetInt64(p.configPath), dig.Name(p.diPath))
+}</span>
+
+func (p configValueProvider) asString() di.ConstructorWithOpts <span class="cov1" title="1">{
+        return di.ProvideValue(p.cfg.GetString(p.configPath), dig.Name(p.diPath))
+}</span>
+
+func (p configValueProvider) asBool() di.ConstructorWithOpts <span class="cov1" title="1">{
+        return di.ProvideValue(p.cfg.GetBool(p.configPath), dig.Name(p.diPath))
+}</span>
+
+func (p configValueProvider) asDuration() di.ConstructorWithOpts <span class="cov8" title="16">{
+        return di.ProvideValue(p.cfg.GetDuration(p.configPath), dig.Name(p.diPath))
+}</span>
+
+func Provide(container *dig.Container, cfg *viper.Viper) error <span class="cov3" title="3">{
+        return di.ProvideAll(container,
+                // tcp server config
+                provideConfigValue(cfg, "tcpServer.port").asInt(),
+                provideConfigValue(cfg, "tcpServer.maxSessionDuration").asDuration(),
+
+                // client config
+                provideConfigValue(cfg, "client.ioTimeout").asDuration(),
+                provideConfigValue(cfg, "client.maxSessionDuration").asDuration(),
+
+                // monitoring config
+                provideConfigValue(cfg, "monitoring.windowDuration").asDuration(),
+                provideConfigValue(cfg, "monitoring.maxUnverifiedClientRequests").asInt64(),
+                provideConfigValue(cfg, "monitoring.maxUnverifiedRequests").asInt64(),
+
+                // challenges config
+                provideConfigValue(cfg, "challenges.maxSolveChallengeDuration").asDuration(),
+        )
+}</span>
+</pre>
+		
+		<pre class="file" id="file24" style="display: none">package di
 
 import (
         "fmt"
@@ -1979,26 +2181,26 @@ type ConstructorWithOpts struct {
         Options     []dig.ProvideOption
 }
 
-func ProvideAll(container *dig.Container, providers ...interface{}) error <span class="cov6" title="15">{
-        for i, provider := range providers </span><span class="cov10" title="61">{
+func ProvideAll(container *dig.Container, providers ...interface{}) error <span class="cov7" title="25">{
+        for i, provider := range providers </span><span class="cov10" title="76">{
                 switch p := provider.(type) </span>{
-                case ConstructorWithOpts:<span class="cov8" title="38">
+                case ConstructorWithOpts:<span class="cov8" title="43">
                         if err := container.Provide(p.Constructor, p.Options...); err != nil </span><span class="cov1" title="1">{
                                 return fmt.Errorf("failed to provide %d-th dependency: %w", i, err)
                         }</span>
-                default:<span class="cov7" title="23">
+                default:<span class="cov8" title="33">
                         if err := container.Provide(provider); err != nil </span><span class="cov1" title="1">{
                                 return fmt.Errorf("failed to provide %d-th dependency: %w", i, err)
                         }</span>
                 }
         }
-        <span class="cov6" title="13">return nil</span>
+        <span class="cov7" title="23">return nil</span>
 }
 
 // ProvideValue will create a constructor (e.g func) from a given value.
-func ProvideValue[T any](val T, opts ...dig.ProvideOption) ConstructorWithOpts <span class="cov9" title="39">{
+func ProvideValue[T any](val T, opts ...dig.ProvideOption) ConstructorWithOpts <span class="cov8" title="44">{
         return ConstructorWithOpts{
-                Constructor: func() T </span><span class="cov7" title="20">{ return val }</span>,
+                Constructor: func() T </span><span class="cov7" title="25">{ return val }</span>,
                 Options:     opts,
         }
 }
@@ -2032,9 +2234,19 @@ func ProvideWithArgErr[
                 return constructor(arg, cArg)
         }</span>
 }
+
+// ProvideAs is used to provide one type as another, typically
+// used to provide implementation struct as particular interface.
+func ProvideAs[TSource any, TTarget any](source TSource) (TTarget, error) <span class="cov4" title="6">{
+        target, ok := any(source).(TTarget)
+        if !ok </span><span class="cov0" title="0">{
+                return target, fmt.Errorf("failed to cast %T to %T", source, target)
+        }</span>
+        <span class="cov4" title="6">return target, nil</span>
+}
 </pre>
 		
-		<pre class="file" id="file20" style="display: none">package diag
+		<pre class="file" id="file25" style="display: none">package diag
 
 import "log/slog"
 
@@ -2043,7 +2255,7 @@ func ErrAttr(err error) slog.Attr <span class="cov10" title="3">{
 }</span>
 </pre>
 		
-		<pre class="file" id="file21" style="display: none">// Code generated by mockery. DO NOT EDIT.
+		<pre class="file" id="file26" style="display: none">// Code generated by mockery. DO NOT EDIT.
 
 //go:build !release
 
@@ -2274,7 +2486,7 @@ func NewMockSlogHandler(t interface {
 }
 </pre>
 		
-		<pre class="file" id="file22" style="display: none">package diag
+		<pre class="file" id="file27" style="display: none">package diag
 
 import (
         "context"
@@ -2306,7 +2518,7 @@ type diagLogHandler struct {
         target slog.Handler
 }
 
-func (h *diagLogHandler) Enabled(ctx context.Context, lvl slog.Level) bool <span class="cov10" title="43">{
+func (h *diagLogHandler) Enabled(ctx context.Context, lvl slog.Level) bool <span class="cov10" title="44">{
         return h.target.Enabled(ctx, lvl)
 }</span>
 
@@ -2320,11 +2532,11 @@ func (h *diagLogHandler) Handle(ctx context.Context, rec slog.Record) error <spa
         <span class="cov7" title="17">return h.target.Handle(ctx, rec)</span>
 }
 
-func (h *diagLogHandler) WithAttrs(attrs []slog.Attr) slog.Handler <span class="cov9" title="29">{
+func (h *diagLogHandler) WithAttrs(attrs []slog.Attr) slog.Handler <span class="cov9" title="30">{
         return &amp;diagLogHandler{target: h.target.WithAttrs(attrs)}
 }</span>
 
-func (h *diagLogHandler) WithGroup(name string) slog.Handler <span class="cov8" title="28">{
+func (h *diagLogHandler) WithGroup(name string) slog.Handler <span class="cov9" title="29">{
         // Using WithAttrs here since group will nest all the attributes
         // inside of it (including correlationId), which makes it harder to
         // filter logs by the correlationId.
@@ -2353,7 +2565,7 @@ func (opts *RootLoggerOpts) WithLogLevel(logLevel slog.Level) *RootLoggerOpts <s
         return opts
 }</span>
 
-func (opts *RootLoggerOpts) WithOutput(output io.Writer) *RootLoggerOpts <span class="cov8" title="24">{
+func (opts *RootLoggerOpts) WithOutput(output io.Writer) *RootLoggerOpts <span class="cov8" title="25">{
         opts.output = output
         return opts
 }</span>
@@ -2370,25 +2582,25 @@ func (opts *RootLoggerOpts) WithOptionalOutputFile(outputFile string) *RootLogge
         return opts</span>
 }
 
-func NewRootLoggerOpts() *RootLoggerOpts <span class="cov9" title="29">{
+func NewRootLoggerOpts() *RootLoggerOpts <span class="cov9" title="30">{
         return &amp;RootLoggerOpts{
                 output: os.Stdout,
         }
 }</span>
 
-func SetupRootLogger(opts *RootLoggerOpts) *slog.Logger <span class="cov9" title="29">{
+func SetupRootLogger(opts *RootLoggerOpts) *slog.Logger <span class="cov9" title="30">{
         logHandlerOpts := &amp;slog.HandlerOptions{Level: opts.logLevel}
         var logHandler slog.Handler
         if opts.jsonLogs </span><span class="cov1" title="1">{
                 logHandler = slog.NewJSONHandler(opts.output, logHandlerOpts)
-        }</span> else<span class="cov8" title="28"> {
+        }</span> else<span class="cov9" title="29"> {
                 logHandler = slog.NewTextHandler(opts.output, logHandlerOpts)
         }</span>
-        <span class="cov9" title="29">return slog.New(&amp;diagLogHandler{target: logHandler})</span>
+        <span class="cov9" title="30">return slog.New(&amp;diagLogHandler{target: logHandler})</span>
 }
 </pre>
 		
-		<pre class="file" id="file23" style="display: none">//go:build !release
+		<pre class="file" id="file28" style="display: none">//go:build !release
 
 package diag
 
@@ -2414,121 +2626,19 @@ func openTestLogFile() *os.File <span class="cov5" title="5">{
 
 var testOutput = openTestLogFile() //nolint:gochecknoglobals //it's ok for tests
 
-func RootTestLogger() *slog.Logger <span class="cov10" title="24">{
+func RootTestLogger() *slog.Logger <span class="cov10" title="25">{
         return SetupRootLogger(
                 NewRootLoggerOpts().WithOutput(testOutput),
         )
 }</span>
 </pre>
 		
-		<pre class="file" id="file24" style="display: none">package networking
-
-import (
-        "bufio"
-        "io"
-)
-
-type Session interface {
-        ClientID() string
-        ReadLine() (string, error)
-        WriteLine(data string) error
-}
-
-type session struct {
-        clientID string
-        stream   io.ReadWriter
-        reader   *bufio.Reader
-}
-
-func (s *session) ClientID() string <span class="cov1" title="1">{
-        return s.clientID
-}</span>
-
-func (s *session) ReadLine() (string, error) <span class="cov7" title="4">{
-        line, _, err := s.reader.ReadLine()
-        if err != nil </span><span class="cov1" title="1">{
-                return "", err
-        }</span>
-        <span class="cov6" title="3">return string(line), nil</span>
-}
-
-func (s *session) WriteLine(data string) error <span class="cov4" title="2">{
-        _, err := s.stream.Write(append([]byte(data), '\n'))
-        return err
-}</span>
-
-func NewSession(clientID string, stream io.ReadWriter) Session <span class="cov10" title="7">{
-        return &amp;session{
-                clientID,
-                stream,
-                bufio.NewReader(stream),
-        }
-}</span>
-</pre>
-		
-		<pre class="file" id="file25" style="display: none">//go:build !release
-
-package networking
-
-import "github.com/go-faker/faker/v4"
-
-type MockSession struct {
-        clientID    string
-        readBuffer  chan string
-        writeBuffer chan string
-        nextError   error
-}
-
-func (m *MockSession) ClientID() string <span class="cov10" title="19">{
-        return m.clientID
-}</span>
-
-func (m *MockSession) MockSendLine(line string) <span class="cov8" title="10">{
-        go func() </span><span class="cov8" title="10">{
-                m.readBuffer &lt;- line
-        }</span>()
-}
-
-func (m *MockSession) MockSendLineAndWaitResult(line string) string <span class="cov7" title="9">{
-        go func() </span><span class="cov7" title="9">{
-                m.readBuffer &lt;- line
-        }</span>()
-        <span class="cov7" title="9">return &lt;-m.writeBuffer</span>
-}
-
-func (m *MockSession) MockWaitResult() string <span class="cov6" title="7">{
-        return &lt;-m.writeBuffer
-}</span>
-
-func (m *MockSession) MockSetNextError(err error) <span class="cov3" title="2">{
-        m.nextError = err
-}</span>
-
-func (m *MockSession) ReadLine() (string, error) <span class="cov9" title="18">{
-        data := &lt;-m.readBuffer
-        return data, m.nextError
-}</span>
-
-func (m *MockSession) WriteLine(data string) error <span class="cov9" title="16">{
-        m.writeBuffer &lt;- data
-        return m.nextError
-}</span>
-
-func NewMockSession() *MockSession <span class="cov9" title="18">{
-        return &amp;MockSession{
-                clientID:    faker.UUIDHyphenated(),
-                readBuffer:  make(chan string),
-                writeBuffer: make(chan string),
-        }
-}</span>
-</pre>
-		
-		<pre class="file" id="file26" style="display: none">package services
+		<pre class="file" id="file29" style="display: none">package services
 
 import (
         "crypto/rand"
         "time"
-        "word-of-wisdom-go/pkg/di"
+        "word-of-wisdom-go/internal/di"
 
         "go.uber.org/dig"
 )
@@ -2545,11 +2655,51 @@ func Register(container *dig.Container) error <span class="cov10" title="3">{
 }</span>
 </pre>
 		
-		<pre class="file" id="file27" style="display: none">//go:build !release
+		<pre class="file" id="file30" style="display: none">package services
+
+import (
+        "bufio"
+        "io"
+)
+
+type SessionIO struct {
+        clientID string
+        stream   io.ReadWriter
+        reader   *bufio.Reader
+}
+
+func (s *SessionIO) ClientID() string <span class="cov9" title="24">{
+        return s.clientID
+}</span>
+
+func (s *SessionIO) ReadLine() (string, error) <span class="cov9" title="24">{
+        line, _, err := s.reader.ReadLine()
+        if err != nil </span><span class="cov4" title="3">{
+                return "", err
+        }</span>
+        <span class="cov9" title="21">return string(line), nil</span>
+}
+
+func (s *SessionIO) WriteLine(data string) error <span class="cov9" title="19">{
+        _, err := s.stream.Write(append([]byte(data), '\n'))
+        return err
+}</span>
+
+func NewSessionIO(clientID string, stream io.ReadWriter) *SessionIO <span class="cov10" title="26">{
+        return &amp;SessionIO{
+                clientID: clientID,
+                stream:   stream,
+                reader:   bufio.NewReader(stream),
+        }
+}</span>
+</pre>
+		
+		<pre class="file" id="file31" style="display: none">//go:build !release
 
 package services
 
 import (
+        "strings"
         "time"
 
         "github.com/go-faker/faker/v4"
@@ -2569,7 +2719,7 @@ func (m *MockNow) Increment(duration time.Duration) <span class="cov1" title="1"
         m.value = m.value.Add(duration)
 }</span>
 
-func (m *MockNow) Now() time.Time <span class="cov10" title="453">{
+func (m *MockNow) Now() time.Time <span class="cov10" title="391">{
         return m.value
 }</span>
 
@@ -2586,9 +2736,78 @@ func MockNowValue(p TimeProvider) time.Time <span class="cov0" title="0">{
         }
         <span class="cov0" title="0">return mp.value</span>
 }
+
+type mockSessionIOStream struct {
+        readBuffer     chan string
+        writeBuffer    chan string
+        nextReadError  error
+        nextWriteError error
+}
+
+func (m *mockSessionIOStream) Read(p []byte) (int, error) <span class="cov5" title="20">{
+        line := &lt;-m.readBuffer
+        if m.nextReadError != nil </span><span class="cov2" title="2">{
+                return 0, m.nextReadError
+        }</span>
+        <span class="cov5" title="18">copy(p, line)
+        return len(line), nil</span>
+}
+
+func (m *mockSessionIOStream) Write(p []byte) (int, error) <span class="cov5" title="17">{
+        line := string(p)
+        go func() </span><span class="cov5" title="17">{
+                m.writeBuffer &lt;- line
+        }</span>()
+        <span class="cov5" title="17">if m.nextWriteError != nil </span><span class="cov1" title="1">{
+                return 0, m.nextWriteError
+        }</span>
+        <span class="cov5" title="16">return len(p), nil</span>
+}
+
+type MockSessionIOController struct {
+        Session *SessionIO
+        stream  *mockSessionIOStream
+}
+
+func (m *MockSessionIOController) MockSendLine(line string) <span class="cov4" title="10">{
+        go func() </span><span class="cov4" title="10">{
+                m.stream.readBuffer &lt;- line + "\n"
+        }</span>()
+}
+
+func (m *MockSessionIOController) MockSendLineAndWaitResult(line string) string <span class="cov4" title="10">{
+        go func() </span><span class="cov4" title="10">{
+                m.stream.readBuffer &lt;- line + "\n"
+        }</span>()
+        <span class="cov4" title="10">return m.MockWaitResult()</span>
+}
+
+func (m *MockSessionIOController) MockWaitResult() string <span class="cov5" title="17">{
+        result := &lt;-m.stream.writeBuffer
+        return strings.TrimSuffix(result, "\n")
+}</span>
+
+func (m *MockSessionIOController) MockSetNextReadError(err error) <span class="cov2" title="2">{
+        m.stream.nextReadError = err
+}</span>
+
+func (m *MockSessionIOController) MockSetNextWriteError(err error) <span class="cov1" title="1">{
+        m.stream.nextWriteError = err
+}</span>
+
+func NewMockSessionIOController() *MockSessionIOController <span class="cov5" title="19">{
+        stream := &amp;mockSessionIOStream{
+                readBuffer:  make(chan string),
+                writeBuffer: make(chan string),
+        }
+        return &amp;MockSessionIOController{
+                Session: NewSessionIO(faker.UUIDHyphenated(), stream),
+                stream:  stream,
+        }
+}</span>
 </pre>
 		
-		<pre class="file" id="file28" style="display: none">package services
+		<pre class="file" id="file32" style="display: none">package services
 
 import "time"
 
@@ -2598,16 +2817,16 @@ type TimeProvider interface {
 
 type timeProviderFn func() time.Time
 
-func (fn timeProviderFn) Now() time.Time <span class="cov10" title="485">{
+func (fn timeProviderFn) Now() time.Time <span class="cov10" title="7756958">{
         return fn()
 }</span>
 
-func NewTimeProvider() TimeProvider <span class="cov3" title="5">{
+func NewTimeProvider() TimeProvider <span class="cov1" title="5">{
         return timeProviderFn(time.Now)
 }</span>
 </pre>
 		
-		<pre class="file" id="file29" style="display: none">package services
+		<pre class="file" id="file33" style="display: none">package services
 
 import "github.com/gofrs/uuid/v5"
 
