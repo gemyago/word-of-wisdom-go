@@ -1,4 +1,4 @@
-package networking
+package services
 
 import (
 	"bytes"
@@ -17,13 +17,13 @@ func TestSession(t *testing.T) {
 			lo.Must(buffer.WriteString(wantLine))
 			lo.Must(buffer.WriteRune('\n'))
 
-			session := NewSession(faker.UUIDHyphenated(), &buffer)
+			session := NewSessionIO(faker.UUIDHyphenated(), &buffer)
 			assert.Equal(t, wantLine, lo.Must(session.ReadLine()))
 			assert.NotEmpty(t, session.ClientID())
 		})
 		t.Run("should handle read errors", func(t *testing.T) {
 			var buffer bytes.Buffer
-			session := NewSession(faker.UUIDHyphenated(), &buffer)
+			session := NewSessionIO(faker.UUIDHyphenated(), &buffer)
 			_, err := session.ReadLine()
 			assert.Error(t, err)
 		})
@@ -33,7 +33,7 @@ func TestSession(t *testing.T) {
 			var buffer bytes.Buffer
 			wantLine := faker.Sentence()
 
-			session := NewSession(faker.UUIDHyphenated(), &buffer)
+			session := NewSessionIO(faker.UUIDHyphenated(), &buffer)
 			lo.Must0(session.WriteLine(wantLine))
 			assert.Equal(t, wantLine+"\n", buffer.String())
 		})

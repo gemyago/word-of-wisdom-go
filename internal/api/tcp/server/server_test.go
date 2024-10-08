@@ -10,7 +10,6 @@ import (
 	"time"
 	"word-of-wisdom-go/internal/diag"
 	"word-of-wisdom-go/internal/services"
-	"word-of-wisdom-go/internal/services/networking"
 
 	"github.com/go-faker/faker/v4"
 	"github.com/samber/lo"
@@ -59,7 +58,7 @@ func TestListener(t *testing.T) {
 			handleSignal := make(chan struct{})
 			wantData := faker.Sentence()
 			mockHandler.EXPECT().Handle(mock.Anything, mock.Anything).RunAndReturn(
-				func(_ context.Context, s *networking.Session) error {
+				func(_ context.Context, s *services.SessionIO) error {
 					gotData, err := s.ReadLine()
 					require.NoError(t, err)
 					assert.Equal(t, wantData, gotData)
@@ -88,7 +87,7 @@ func TestListener(t *testing.T) {
 			mockHandler, _ := deps.Handler.(*mockCommandHandler)
 			handleSignal := make(chan struct{})
 			mockHandler.EXPECT().Handle(mock.Anything, mock.Anything).RunAndReturn(
-				func(_ context.Context, _ *networking.Session) error {
+				func(_ context.Context, _ *services.SessionIO) error {
 					close(handleSignal)
 					return errors.New(faker.Sentence())
 				},
@@ -114,7 +113,7 @@ func TestListener(t *testing.T) {
 			mockHandler, _ := deps.Handler.(*mockCommandHandler)
 			handleSignal := make(chan struct{})
 			mockHandler.EXPECT().Handle(mock.Anything, mock.Anything).RunAndReturn(
-				func(_ context.Context, _ *networking.Session) error {
+				func(_ context.Context, _ *services.SessionIO) error {
 					close(handleSignal)
 					panic(errors.New(faker.Sentence()))
 				},

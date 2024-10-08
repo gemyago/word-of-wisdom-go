@@ -6,7 +6,7 @@ package server
 
 import (
 	context "context"
-	networking "word-of-wisdom-go/internal/services/networking"
+	services "word-of-wisdom-go/internal/services"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -25,7 +25,7 @@ func (_m *mockCommandHandler) EXPECT() *mockCommandHandler_Expecter {
 }
 
 // Handle provides a mock function with given fields: ctx, session
-func (_m *mockCommandHandler) Handle(ctx context.Context, session *networking.Session) error {
+func (_m *mockCommandHandler) Handle(ctx context.Context, session *services.SessionIO) error {
 	ret := _m.Called(ctx, session)
 
 	if len(ret) == 0 {
@@ -33,7 +33,7 @@ func (_m *mockCommandHandler) Handle(ctx context.Context, session *networking.Se
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *networking.Session) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *services.SessionIO) error); ok {
 		r0 = rf(ctx, session)
 	} else {
 		r0 = ret.Error(0)
@@ -49,14 +49,14 @@ type mockCommandHandler_Handle_Call struct {
 
 // Handle is a helper method to define mock.On call
 //   - ctx context.Context
-//   - session *networking.Session
+//   - session *services.SessionIO
 func (_e *mockCommandHandler_Expecter) Handle(ctx interface{}, session interface{}) *mockCommandHandler_Handle_Call {
 	return &mockCommandHandler_Handle_Call{Call: _e.mock.On("Handle", ctx, session)}
 }
 
-func (_c *mockCommandHandler_Handle_Call) Run(run func(ctx context.Context, session *networking.Session)) *mockCommandHandler_Handle_Call {
+func (_c *mockCommandHandler_Handle_Call) Run(run func(ctx context.Context, session *services.SessionIO)) *mockCommandHandler_Handle_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*networking.Session))
+		run(args[0].(context.Context), args[1].(*services.SessionIO))
 	})
 	return _c
 }
@@ -66,7 +66,7 @@ func (_c *mockCommandHandler_Handle_Call) Return(_a0 error) *mockCommandHandler_
 	return _c
 }
 
-func (_c *mockCommandHandler_Handle_Call) RunAndReturn(run func(context.Context, *networking.Session) error) *mockCommandHandler_Handle_Call {
+func (_c *mockCommandHandler_Handle_Call) RunAndReturn(run func(context.Context, *services.SessionIO) error) *mockCommandHandler_Handle_Call {
 	_c.Call.Return(run)
 	return _c
 }

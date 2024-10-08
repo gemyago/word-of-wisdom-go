@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"testing"
 	"word-of-wisdom-go/internal/diag"
-	"word-of-wisdom-go/internal/services/networking"
+	"word-of-wisdom-go/internal/services"
 
 	"github.com/go-faker/faker/v4"
 	"github.com/samber/lo"
@@ -29,7 +29,7 @@ func TestWow(t *testing.T) {
 		cmd := newWOWCommand(deps)
 
 		ctx := context.Background()
-		ctrl := networking.NewMockSessionController()
+		ctrl := services.NewMockSessionIOController()
 		cmdResCh := make(chan lo.Tuple2[string, error])
 		wantWow := faker.Sentence()
 		go func() {
@@ -50,7 +50,7 @@ func TestWow(t *testing.T) {
 		cmd := newWOWCommand(deps)
 
 		ctx := context.Background()
-		ctrl := networking.NewMockSessionController()
+		ctrl := services.NewMockSessionIOController()
 		cmdResCh := make(chan lo.Tuple2[string, error])
 		wantWow := faker.Sentence()
 		wantErr := errors.New(faker.Sentence())
@@ -72,7 +72,7 @@ func TestWow(t *testing.T) {
 		cmd := newWOWCommand(deps)
 
 		ctx := context.Background()
-		ctrl := networking.NewMockSessionController()
+		ctrl := services.NewMockSessionIOController()
 		cmdResCh := make(chan lo.Tuple2[string, error])
 		wantWow := faker.Sentence()
 		wantChallenge := faker.Sentence()
@@ -104,7 +104,7 @@ func TestWow(t *testing.T) {
 		cmd := newWOWCommand(deps)
 
 		ctx := context.Background()
-		ctrl := networking.NewMockSessionController()
+		ctrl := services.NewMockSessionIOController()
 		cmdResCh := make(chan lo.Tuple2[string, error])
 
 		go func() {
@@ -123,7 +123,7 @@ func TestWow(t *testing.T) {
 		cmd := newWOWCommand(deps)
 
 		ctx := context.Background()
-		ctrl := networking.NewMockSessionController()
+		ctrl := services.NewMockSessionIOController()
 		cmdResCh := make(chan lo.Tuple2[string, error])
 
 		mockChallenges, _ := deps.Challenges.(*mockChallengesService)
@@ -149,7 +149,7 @@ func TestWow(t *testing.T) {
 		cmd := newWOWCommand(deps)
 
 		ctx := context.Background()
-		ctrl := networking.NewMockSessionController()
+		ctrl := services.NewMockSessionIOController()
 		cmdResCh := make(chan lo.Tuple2[string, error])
 
 		go func() {
@@ -171,7 +171,7 @@ func TestWow(t *testing.T) {
 		cmd := newWOWCommand(deps)
 
 		ctx := context.Background()
-		ctrl := networking.NewMockSessionController()
+		ctrl := services.NewMockSessionIOController()
 		cmdResCh := make(chan lo.Tuple2[string, error])
 
 		mockChallenges, _ := deps.Challenges.(*mockChallengesService)

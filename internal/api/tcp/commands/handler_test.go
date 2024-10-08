@@ -8,7 +8,7 @@ import (
 	"testing"
 	"word-of-wisdom-go/internal/app"
 	"word-of-wisdom-go/internal/diag"
-	"word-of-wisdom-go/internal/services/networking"
+	"word-of-wisdom-go/internal/services"
 
 	"github.com/go-faker/faker/v4"
 	"github.com/stretchr/testify/assert"
@@ -31,7 +31,7 @@ func TestCommands(t *testing.T) {
 			deps := makeMockDeps(t)
 			h := NewHandler(deps)
 
-			ctrl := networking.NewMockSessionController()
+			ctrl := services.NewMockSessionIOController()
 			wantErr := errors.New(faker.Sentence())
 
 			handleErr := make(chan error)
@@ -48,7 +48,7 @@ func TestCommands(t *testing.T) {
 			deps := makeMockDeps(t)
 			h := NewHandler(deps)
 
-			ctrl := networking.NewMockSessionController()
+			ctrl := services.NewMockSessionIOController()
 
 			handleErr := make(chan error)
 			go func() {
@@ -64,7 +64,7 @@ func TestCommands(t *testing.T) {
 			deps := makeMockDeps(t)
 			h := NewHandler(deps)
 
-			ctrl := networking.NewMockSessionController()
+			ctrl := services.NewMockSessionIOController()
 
 			mockMonitor, _ := deps.RequestRateMonitor.(*mockRequestRateMonitor)
 			mockMonitor.EXPECT().RecordRequest(ctx, ctrl.Session.ClientID()).Return(
@@ -89,7 +89,7 @@ func TestCommands(t *testing.T) {
 			deps := makeMockDeps(t)
 			h := NewHandler(deps)
 
-			ctrl := networking.NewMockSessionController()
+			ctrl := services.NewMockSessionIOController()
 
 			mockMonitor, _ := deps.RequestRateMonitor.(*mockRequestRateMonitor)
 			monitorResult := app.RecordRequestResult{
@@ -131,7 +131,7 @@ func TestCommands(t *testing.T) {
 			deps := makeMockDeps(t)
 			h := NewHandler(deps)
 
-			ctrl := networking.NewMockSessionController()
+			ctrl := services.NewMockSessionIOController()
 
 			mockMonitor, _ := deps.RequestRateMonitor.(*mockRequestRateMonitor)
 			mockMonitor.EXPECT().RecordRequest(ctx, ctrl.Session.ClientID()).Return(
@@ -152,7 +152,7 @@ func TestCommands(t *testing.T) {
 			deps := makeMockDeps(t)
 			h := NewHandler(deps)
 
-			ctrl := networking.NewMockSessionController()
+			ctrl := services.NewMockSessionIOController()
 
 			mockMonitor, _ := deps.RequestRateMonitor.(*mockRequestRateMonitor)
 			mockMonitor.EXPECT().RecordRequest(ctx, ctrl.Session.ClientID()).Return(
@@ -176,7 +176,7 @@ func TestCommands(t *testing.T) {
 			deps := makeMockDeps(t)
 			h := NewHandler(deps)
 
-			ctrl := networking.NewMockSessionController()
+			ctrl := services.NewMockSessionIOController()
 
 			mockMonitor, _ := deps.RequestRateMonitor.(*mockRequestRateMonitor)
 			mockMonitor.EXPECT().RecordRequest(ctx, ctrl.Session.ClientID()).Return(
@@ -200,7 +200,7 @@ func TestCommands(t *testing.T) {
 			deps := makeMockDeps(t)
 			h := NewHandler(deps)
 
-			ctrl := networking.NewMockSessionController()
+			ctrl := services.NewMockSessionIOController()
 
 			mockMonitor, _ := deps.RequestRateMonitor.(*mockRequestRateMonitor)
 			monitorResult := app.RecordRequestResult{

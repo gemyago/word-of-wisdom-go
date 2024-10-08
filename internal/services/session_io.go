@@ -1,21 +1,21 @@
-package networking
+package services
 
 import (
 	"bufio"
 	"io"
 )
 
-type Session struct {
+type SessionIO struct {
 	clientID string
 	stream   io.ReadWriter
 	reader   *bufio.Reader
 }
 
-func (s *Session) ClientID() string {
+func (s *SessionIO) ClientID() string {
 	return s.clientID
 }
 
-func (s *Session) ReadLine() (string, error) {
+func (s *SessionIO) ReadLine() (string, error) {
 	line, _, err := s.reader.ReadLine()
 	if err != nil {
 		return "", err
@@ -23,13 +23,13 @@ func (s *Session) ReadLine() (string, error) {
 	return string(line), nil
 }
 
-func (s *Session) WriteLine(data string) error {
+func (s *SessionIO) WriteLine(data string) error {
 	_, err := s.stream.Write(append([]byte(data), '\n'))
 	return err
 }
 
-func NewSession(clientID string, stream io.ReadWriter) *Session {
-	return &Session{
+func NewSessionIO(clientID string, stream io.ReadWriter) *SessionIO {
+	return &SessionIO{
 		clientID: clientID,
 		stream:   stream,
 		reader:   bufio.NewReader(stream),

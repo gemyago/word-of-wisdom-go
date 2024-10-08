@@ -7,7 +7,7 @@ import (
 	"strings"
 	"word-of-wisdom-go/internal/app"
 	"word-of-wisdom-go/internal/diag"
-	"word-of-wisdom-go/internal/services/networking"
+	"word-of-wisdom-go/internal/services"
 
 	"go.uber.org/dig"
 )
@@ -61,7 +61,7 @@ func (h *CommandHandler) trace(ctx context.Context, msg string, args ...any) {
 
 func (h *CommandHandler) performChallengeVerification(
 	ctx context.Context,
-	session *networking.Session,
+	session *services.SessionIO,
 	monitoringResult app.RecordRequestResult,
 ) (bool, error) {
 	var challenge string
@@ -97,8 +97,8 @@ func (h *CommandHandler) performChallengeVerification(
 	return true, nil
 }
 
-func (h *CommandHandler) Handle(ctx context.Context, con *networking.Session) error {
-	cmd, err := con.ReadLine()
+func (h *CommandHandler) Handle(ctx context.Context, session *services.SessionIO) error {
+	cmd, err := session.ReadLine()
 	if err != nil {
 		return err
 	}
@@ -111,22 +111,22 @@ func (h *CommandHandler) Handle(ctx context.Context, con *networking.Session) er
 	// Keeping it simple for now since we need just a single command.
 	if cmd != CommandGetWow {
 		h.trace(ctx, "Got bad command", slog.String("cmd", cmd))
-		return con.WriteLine(errBadCmdResponse)
+		return session.WriteLine(errBadCmdResponse)
 	}
 
-	monitoringResult, err := h.deps.RequestRateMonitor.RecordRequest(ctx, con.ClientID())
+	monitoringResult, err := h.deps.RequestRateMonitor.RecordRequest(ctx, session.ClientID())
 	if err != nil {
 		h.logger.ErrorContext(ctx,
 			"Failed to record request",
-			slog.String("clientID", con.ClientID()),
+			slog.String("clientID", session.ClientID()),
 			diag.ErrAttr(err),
 		)
-		return con.WriteLine(errInternalError)
+		return session.WriteLine(errInternalError)
 	}
 
 	if monitoringResult.ChallengeRequired {
 		var ok bool
-		ok, err = h.performChallengeVerification(ctx, con, monitoringResult)
+		ok, err = h.performChallengeVerification(ctx, session, monitoringResult)
 		if err != nil {
 			return err
 		}
@@ -141,7 +141,7 @@ func (h *CommandHandler) Handle(ctx context.Context, con *networking.Session) er
 	}
 
 	h.trace(ctx, "Responding with WOW")
-	return con.WriteLine(WowResponsePrefix + wow)
+	return session.WriteLine(WowResponsePrefix + wow)
 }
 
 func NewHandler(deps CommandHandlerDeps) *CommandHandler {

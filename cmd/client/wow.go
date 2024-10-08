@@ -8,18 +8,18 @@ import (
 	"strings"
 	"time"
 	"word-of-wisdom-go/internal/api/tcp/commands"
-	"word-of-wisdom-go/internal/services/networking"
+	"word-of-wisdom-go/internal/services"
 
 	"go.uber.org/dig"
 )
 
 type WOWCommand interface {
-	Process(ctx context.Context, session *networking.Session) (string, error)
+	Process(ctx context.Context, session *services.SessionIO) (string, error)
 }
 
-type WOWCommandFunc func(ctx context.Context, session *networking.Session) (string, error)
+type WOWCommandFunc func(ctx context.Context, session *services.SessionIO) (string, error)
 
-func (f WOWCommandFunc) Process(ctx context.Context, session *networking.Session) (string, error) {
+func (f WOWCommandFunc) Process(ctx context.Context, session *services.SessionIO) (string, error) {
 	return f(ctx, session)
 }
 
@@ -40,7 +40,7 @@ type WOWCommandDeps struct {
 
 func newWOWCommand(deps WOWCommandDeps) WOWCommand {
 	logger := deps.RootLogger.WithGroup("client")
-	return WOWCommandFunc(func(ctx context.Context, session *networking.Session) (string, error) {
+	return WOWCommandFunc(func(ctx context.Context, session *services.SessionIO) (string, error) {
 		logger.DebugContext(ctx, "Sending GET_WOW request")
 
 		if err := session.WriteLine(commands.CommandGetWow); err != nil {

@@ -11,13 +11,12 @@ import (
 	"time"
 	"word-of-wisdom-go/internal/diag"
 	"word-of-wisdom-go/internal/services"
-	"word-of-wisdom-go/internal/services/networking"
 
 	"go.uber.org/dig"
 )
 
 type commandHandler interface {
-	Handle(ctx context.Context, session *networking.Session) error
+	Handle(ctx context.Context, session *services.SessionIO) error
 }
 
 type ListenerDeps struct {
@@ -97,7 +96,7 @@ func (l *Listener) processAcceptedConnection(ctx context.Context, c net.Conn) {
 
 	l.logger.InfoContext(ctx, "Connection accepted", slog.String("remoteAddr", remoteAddr))
 	defer c.Close()
-	session := networking.NewSession(extractHost(remoteAddr), c)
+	session := services.NewSessionIO(extractHost(remoteAddr), c)
 	if err := l.commandHandler.Handle(ctx, session); err != nil {
 		l.logger.ErrorContext(ctx,
 			"Failed processing command",
