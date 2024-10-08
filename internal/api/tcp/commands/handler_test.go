@@ -13,6 +13,7 @@ import (
 	"github.com/go-faker/faker/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 func TestCommands(t *testing.T) {
@@ -31,15 +32,15 @@ func TestCommands(t *testing.T) {
 			deps := makeMockDeps(t)
 			h := NewHandler(deps)
 
-			ctrl := services.NewMockSessionIOController()
 			wantErr := errors.New(faker.Sentence())
+			ctrl := services.NewMockSessionIOController()
+			ctrl.MockSetNextReadError(wantErr)
 
 			handleErr := make(chan error)
 			go func() {
 				handleErr <- h.Handle(ctx, ctrl.Session)
 			}()
 
-			ctrl.MockSetNextError(wantErr)
 			ctrl.MockSendLine(faker.Word())
 			assert.ErrorIs(t, <-handleErr, wantErr)
 		})
@@ -229,6 +230,36 @@ func TestCommands(t *testing.T) {
 			result := ctrl.MockSendLineAndWaitResult("CHALLENGE_RESULT: " + faker.Word())
 			assert.Equal(t, "ERR: CHALLENGE_VERIFICATION_FAILED", result)
 			assert.NoError(t, <-handleErr)
+		})
+		t.Run("should handle session errors to write challenge", func(t *testing.T) {
+			ctx := context.Background()
+			deps := makeMockDeps(t)
+			h := NewHandler(deps)
+
+			ctrl := services.NewMockSessionIOController()
+
+			mockMonitor, _ := deps.RequestRateMonitor.(*app.MockRequestRateMonitor)
+			monitorResult := app.RecordRequestResult{
+				ChallengeRequired:   true,
+				ChallengeComplexity: 5 + rand.IntN(10),
+			}
+			mockMonitor.EXPECT().RecordRequest(ctx, ctrl.Session.ClientID()).Return(
+				monitorResult, nil,
+			)
+
+			mockChallenges, _ := deps.Challenges.(*app.MockChallenges)
+			mockChallenges.EXPECT().GenerateNewChallenge(ctrl.Session.ClientID()).Return(faker.Word(), nil)
+
+			handleErr := make(chan error)
+			go func() {
+				handleErr <- h.Handle(ctx, ctrl.Session)
+			}()
+
+			wantErr := errors.New(faker.Sentence())
+
+			ctrl.MockSetNextWriteError(wantErr)
+			ctrl.MockSendLineAndWaitResult("GET_WOW")
+			require.ErrorIs(t, <-handleErr, wantErr)
 		})
 	})
 }

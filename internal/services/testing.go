@@ -42,15 +42,19 @@ func MockNowValue(p TimeProvider) time.Time {
 }
 
 type mockSessionIOStream struct {
-	readBuffer  chan string
-	writeBuffer chan string
-	nextError   error
+	readBuffer     chan string
+	writeBuffer    chan string
+	nextReadError  error
+	nextWriteError error
 }
 
 func (m *mockSessionIOStream) Read(p []byte) (int, error) {
 	line := <-m.readBuffer
+	if m.nextReadError != nil {
+		return 0, m.nextReadError
+	}
 	copy(p, line)
-	return len(line), m.nextError
+	return len(line), nil
 }
 
 func (m *mockSessionIOStream) Write(p []byte) (int, error) {
@@ -58,7 +62,10 @@ func (m *mockSessionIOStream) Write(p []byte) (int, error) {
 	go func() {
 		m.writeBuffer <- line
 	}()
-	return len(p), m.nextError
+	if m.nextWriteError != nil {
+		return 0, m.nextWriteError
+	}
+	return len(p), nil
 }
 
 type MockSessionIOController struct {
@@ -84,8 +91,12 @@ func (m *MockSessionIOController) MockWaitResult() string {
 	return strings.TrimSuffix(result, "\n")
 }
 
-func (m *MockSessionIOController) MockSetNextError(err error) {
-	m.stream.nextError = err
+func (m *MockSessionIOController) MockSetNextReadError(err error) {
+	m.stream.nextReadError = err
+}
+
+func (m *MockSessionIOController) MockSetNextWriteError(err error) {
+	m.stream.nextWriteError = err
 }
 
 func NewMockSessionIOController() *MockSessionIOController {

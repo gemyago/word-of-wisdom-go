@@ -55,7 +55,7 @@ func TestWow(t *testing.T) {
 		cmdResCh := make(chan lo.Tuple2[string, error])
 		wantWow := faker.Sentence()
 		wantErr := errors.New(faker.Sentence())
-		ctrl.MockSetNextError(wantErr)
+		ctrl.MockSetNextReadError(wantErr)
 		go func() {
 			res, err := cmd.Process(ctx, ctrl.Session)
 			cmdResCh <- lo.Tuple2[string, error]{A: res, B: err}
