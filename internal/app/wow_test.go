@@ -1,4 +1,4 @@
-package wow
+package app
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 func TestQuery(t *testing.T) {
 	t.Run("GetNextWoW", func(t *testing.T) {
 		t.Run("should get next random phrase", func(t *testing.T) {
-			query := NewQuery()
+			query := NewWowQuery()
 
 			phrase1, err := query.GetNextWoW(context.Background())
 			require.NoError(t, err)

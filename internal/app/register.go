@@ -10,5 +10,6 @@ func Register(container *dig.Container) error {
 	return di.ProvideAll(container,
 		NewChallenges,
 		NewRequestRateMonitor,
+		NewWowQuery,
 	)
 }
