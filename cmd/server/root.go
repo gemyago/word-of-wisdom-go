@@ -6,7 +6,7 @@ import (
 	"log/slog"
 	"word-of-wisdom-go/internal/api/tcp/commands"
 	"word-of-wisdom-go/internal/api/tcp/server"
-	"word-of-wisdom-go/internal/app/challenges"
+	"word-of-wisdom-go/internal/app"
 	"word-of-wisdom-go/internal/app/wow"
 	"word-of-wisdom-go/internal/config"
 	"word-of-wisdom-go/internal/di"
@@ -79,7 +79,7 @@ func newRootCmd(container *dig.Container) *cobra.Command {
 			server.Register(container),
 
 			// app layer
-			challenges.Register(container),
+			app.Register(container),
 			wow.Register(container),
 
 			// services

@@ -1,7 +1,7 @@
 package commands
 
 import (
-	"word-of-wisdom-go/internal/app/challenges"
+	"word-of-wisdom-go/internal/app"
 	"word-of-wisdom-go/internal/app/wow"
 	"word-of-wisdom-go/internal/di"
 
@@ -10,8 +10,8 @@ import (
 
 func Register(container *dig.Container) error {
 	return di.ProvideAll(container,
-		di.ProvideAs[*challenges.Challenges, challengesService],
-		di.ProvideAs[*challenges.RequestRateMonitor, requestRateMonitor],
+		di.ProvideAs[*app.Challenges, challengesService],
+		di.ProvideAs[*app.RequestRateMonitor, requestRateMonitor],
 		di.ProvideAs[*wow.Query, wowQuery],
 
 		NewHandler,

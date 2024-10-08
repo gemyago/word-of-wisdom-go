@@ -6,7 +6,7 @@ package commands
 
 import (
 	context "context"
-	challenges "word-of-wisdom-go/internal/app/challenges"
+	app "word-of-wisdom-go/internal/app"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -25,22 +25,22 @@ func (_m *mockRequestRateMonitor) EXPECT() *mockRequestRateMonitor_Expecter {
 }
 
 // RecordRequest provides a mock function with given fields: ctx, clientID
-func (_m *mockRequestRateMonitor) RecordRequest(ctx context.Context, clientID string) (challenges.RecordRequestResult, error) {
+func (_m *mockRequestRateMonitor) RecordRequest(ctx context.Context, clientID string) (app.RecordRequestResult, error) {
 	ret := _m.Called(ctx, clientID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for RecordRequest")
 	}
 
-	var r0 challenges.RecordRequestResult
+	var r0 app.RecordRequestResult
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (challenges.RecordRequestResult, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (app.RecordRequestResult, error)); ok {
 		return rf(ctx, clientID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) challenges.RecordRequestResult); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) app.RecordRequestResult); ok {
 		r0 = rf(ctx, clientID)
 	} else {
-		r0 = ret.Get(0).(challenges.RecordRequestResult)
+		r0 = ret.Get(0).(app.RecordRequestResult)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
@@ -71,12 +71,12 @@ func (_c *mockRequestRateMonitor_RecordRequest_Call) Run(run func(ctx context.Co
 	return _c
 }
 
-func (_c *mockRequestRateMonitor_RecordRequest_Call) Return(_a0 challenges.RecordRequestResult, _a1 error) *mockRequestRateMonitor_RecordRequest_Call {
+func (_c *mockRequestRateMonitor_RecordRequest_Call) Return(_a0 app.RecordRequestResult, _a1 error) *mockRequestRateMonitor_RecordRequest_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockRequestRateMonitor_RecordRequest_Call) RunAndReturn(run func(context.Context, string) (challenges.RecordRequestResult, error)) *mockRequestRateMonitor_RecordRequest_Call {
+func (_c *mockRequestRateMonitor_RecordRequest_Call) RunAndReturn(run func(context.Context, string) (app.RecordRequestResult, error)) *mockRequestRateMonitor_RecordRequest_Call {
 	_c.Call.Return(run)
 	return _c
 }

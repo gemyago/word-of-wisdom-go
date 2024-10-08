@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"word-of-wisdom-go/internal/app/challenges"
+	"word-of-wisdom-go/internal/app"
 	"word-of-wisdom-go/internal/config"
 	"word-of-wisdom-go/internal/di"
 	"word-of-wisdom-go/internal/diag"
@@ -74,11 +74,11 @@ func newRootCmd(container *dig.Container) *cobra.Command {
 				// client specific deps
 				newSessionDialer,
 				newWOWCommand,
-				di.ProvideAs[*challenges.Challenges, challengesService],
+				di.ProvideAs[*app.Challenges, challengesService],
 			),
 
 			// app layer
-			challenges.Register(container),
+			app.Register(container),
 
 			// service layer
 			services.Register(container),

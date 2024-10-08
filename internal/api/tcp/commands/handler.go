@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"strings"
-	"word-of-wisdom-go/internal/app/challenges"
+	"word-of-wisdom-go/internal/app"
 	"word-of-wisdom-go/internal/diag"
 	"word-of-wisdom-go/internal/services/networking"
 
@@ -31,7 +31,7 @@ type wowQuery interface {
 }
 
 type requestRateMonitor interface {
-	RecordRequest(ctx context.Context, clientID string) (challenges.RecordRequestResult, error)
+	RecordRequest(ctx context.Context, clientID string) (app.RecordRequestResult, error)
 }
 
 type challengesService interface {
@@ -62,7 +62,7 @@ func (h *CommandHandler) trace(ctx context.Context, msg string, args ...any) {
 func (h *CommandHandler) performChallengeVerification(
 	ctx context.Context,
 	session *networking.Session,
-	monitoringResult challenges.RecordRequestResult,
+	monitoringResult app.RecordRequestResult,
 ) (bool, error) {
 	var challenge string
 	challenge, err := h.deps.Challenges.GenerateNewChallenge(session.ClientID())

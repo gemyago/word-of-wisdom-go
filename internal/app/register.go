@@ -1,4 +1,4 @@
-package challenges
+package app
 
 import (
 	"word-of-wisdom-go/internal/di"

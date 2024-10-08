@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"math/rand/v2"
 	"testing"
-	"word-of-wisdom-go/internal/app/challenges"
+	"word-of-wisdom-go/internal/app"
 	"word-of-wisdom-go/internal/diag"
 	"word-of-wisdom-go/internal/services/networking"
 
@@ -68,7 +68,7 @@ func TestCommands(t *testing.T) {
 
 			mockMonitor, _ := deps.RequestRateMonitor.(*mockRequestRateMonitor)
 			mockMonitor.EXPECT().RecordRequest(ctx, ctrl.Session.ClientID()).Return(
-				challenges.RecordRequestResult{}, nil,
+				app.RecordRequestResult{}, nil,
 			)
 
 			wantWow := faker.Sentence()
@@ -92,7 +92,7 @@ func TestCommands(t *testing.T) {
 			ctrl := networking.NewMockSessionController()
 
 			mockMonitor, _ := deps.RequestRateMonitor.(*mockRequestRateMonitor)
-			monitorResult := challenges.RecordRequestResult{
+			monitorResult := app.RecordRequestResult{
 				ChallengeRequired:   true,
 				ChallengeComplexity: 5 + rand.IntN(10),
 			}
@@ -135,7 +135,7 @@ func TestCommands(t *testing.T) {
 
 			mockMonitor, _ := deps.RequestRateMonitor.(*mockRequestRateMonitor)
 			mockMonitor.EXPECT().RecordRequest(ctx, ctrl.Session.ClientID()).Return(
-				challenges.RecordRequestResult{}, errors.New(faker.Sentence()),
+				app.RecordRequestResult{}, errors.New(faker.Sentence()),
 			)
 
 			handleErr := make(chan error)
@@ -156,7 +156,7 @@ func TestCommands(t *testing.T) {
 
 			mockMonitor, _ := deps.RequestRateMonitor.(*mockRequestRateMonitor)
 			mockMonitor.EXPECT().RecordRequest(ctx, ctrl.Session.ClientID()).Return(
-				challenges.RecordRequestResult{}, nil,
+				app.RecordRequestResult{}, nil,
 			)
 
 			mockQuery, _ := deps.Query.(*mockWowQuery)
@@ -180,7 +180,7 @@ func TestCommands(t *testing.T) {
 
 			mockMonitor, _ := deps.RequestRateMonitor.(*mockRequestRateMonitor)
 			mockMonitor.EXPECT().RecordRequest(ctx, ctrl.Session.ClientID()).Return(
-				challenges.RecordRequestResult{ChallengeRequired: true}, nil,
+				app.RecordRequestResult{ChallengeRequired: true}, nil,
 			)
 
 			wantErr := errors.New(faker.Sentence())
@@ -203,7 +203,7 @@ func TestCommands(t *testing.T) {
 			ctrl := networking.NewMockSessionController()
 
 			mockMonitor, _ := deps.RequestRateMonitor.(*mockRequestRateMonitor)
-			monitorResult := challenges.RecordRequestResult{
+			monitorResult := app.RecordRequestResult{
 				ChallengeRequired:   true,
 				ChallengeComplexity: 5 + rand.IntN(10),
 			}
